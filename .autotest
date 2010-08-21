@@ -1,2 +1,2 @@
-require 'redgreen/autotest'
 require 'autotest/growl'
+require 'redgreen/autotest'
