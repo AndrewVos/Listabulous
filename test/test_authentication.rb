@@ -1,21 +1,8 @@
 require 'test/unit'
-require 'rr'
-require 'sinatra'
-require 'rack/test'
-set :environment, :test
-require 'configuration'
-
 require 'authentication'
 
-
 class TestAuthentication < Test::Unit::TestCase
-  include Rack::Test::Methods
-  include RR::Adapters::TestUnit
-
-  def app
-    Sinatra::Application
-  end
-
+  
   def test_login_sets_session_id_cookie
     cookies = {}
     authentication = Authentication.new(cookies)

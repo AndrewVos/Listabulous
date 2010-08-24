@@ -1,5 +1,4 @@
 require "test/unit"
-
 require "string_encryption"
 
 class TestStringEncryption < Test::Unit::TestCase
