@@ -1,7 +1,7 @@
 require 'openssl'
 require 'base64'
 require 'uri'
-require 'sinatra'
+
 class StringEncryption
   
   def key

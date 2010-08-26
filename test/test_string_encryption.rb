@@ -1,9 +1,9 @@
-require "test/unit"
-require "string_encryption"
+require 'test/unit'
+require 'string_encryption'
 
 class TestStringEncryption < Test::Unit::TestCase
   def test_encrypt_decrypt_string
-    encryptor = StringEncryption.new()
+    encryptor = StringEncryption.new
     string = "Some string value"
     
     encrypted = encryptor.encrypt(string)

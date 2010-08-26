@@ -10,7 +10,7 @@ class User
   key :default_colour, String
   
   validates_presence_of :email
-  validates_format_of :email, :with => RFC822::EMAIL
+  validates_format_of :email, :with => RFC822::EMAIL, :allow_nil => true
   validates_presence_of :password
   validates_presence_of :display_name
   validates_presence_of :default_colour
