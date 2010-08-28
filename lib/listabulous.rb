@@ -14,9 +14,6 @@ post '/login/?' do
   puts params[:email]
   puts params[:password]
   puts params[:remember]
-  
-  @login_failed = true
-  erb :login
 end
 
 get '/register/?' do

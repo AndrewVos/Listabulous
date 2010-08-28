@@ -1,6 +1,7 @@
 require 'test/unit'
-require 'authentication'
+require 'mocha'
 
+require 'authentication'
 class TestAuthentication < Test::Unit::TestCase
   
   def test_login_sets_session_id_cookie

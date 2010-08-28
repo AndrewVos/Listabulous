@@ -1,0 +1,56 @@
+<script type="text/javascript">
+$(document).ready(function () {
+	$("form").validate({
+		rules: {
+			email: {
+				required: true,
+				email: true
+			},
+			password: {
+				required: true
+			}
+		}
+	});
+});
+</script>
+<p>
+	Enter your email address and password to login. If you're a new user, click
+	<a href="/register">here</a>
+	to create an account.
+</p>
+
+
+<% if @login_failed %>
+<div class="error">
+	Login has failed
+</div>
+<% end %>
+
+<form method="post">
+	<div>
+		<fieldset>
+			<legend>Login</legend>
+			<p>
+				<label for="email">
+					Email:
+				</label>
+				<input type="text" name="email">
+			</p>
+			<p>
+				<label for="password">
+					Password:
+				</label>
+				<input type="password" name="password">
+			</p>
+			<p>
+				<label for="remember">
+					<input type="checkbox" name="remember">
+					Remember details?
+				</label>
+			</p>
+			<p>
+				<input type="submit" id="loginButton" value="Login" />
+			</p>
+		</fieldset>
+	</div>
+</form>
