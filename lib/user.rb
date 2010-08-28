@@ -4,7 +4,7 @@ require 'rfc-822'
 class User
   include MongoMapper::Document
   
-  key :email, String
+  key :email, String, :unique => true
   key :password, String
   key :display_name, String
   key :default_colour, String

@@ -1,7 +1,14 @@
-require 'test_helper'
-require 'models/user'
+require 'test/unit'
+require 'mongo_mapper'
+
+require 'user'
 
 class TestUser < Test::Unit::TestCase
+
+  def setup
+    MongoMapper.database = "ListabulousTest"
+    User.collection.remove    
+  end
 
   def test_does_not_save_when_email_is_empty
     user = create_user(nil, "thepassword", "John", "Red")
@@ -41,6 +48,16 @@ class TestUser < Test::Unit::TestCase
     assert_equal(false, user.save)
     assert_equal(1, user.errors.count)
     assert(user.errors.on(:default_colour))
+  end
+  
+  def test_does_not_save_when_email_is_not_unique
+    first_user = create_user("email@address.com", "password1", "John Doe", "red")
+    assert_equal(true, first_user.save)
+    
+    second_user = create_user("email@address.com", "password2", "John Doe", "red")    
+    assert_equal(false, second_user.save)
+    assert_equal(1, second_user.errors.count)
+    assert(second_user.errors.on(:email))
   end
   
   def create_user(email, password, display_name, default_colour)
