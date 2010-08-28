@@ -1,7 +1,7 @@
-require 'mongo_mapper'
+require 'test_helper'
+
 require 'rfc-822'
 require 'digest/sha1'
-require 'list_item'
 
 class User
   include MongoMapper::Document

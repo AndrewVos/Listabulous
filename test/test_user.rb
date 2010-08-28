@@ -1,8 +1,4 @@
-require 'test/unit'
-require 'mongo_mapper'
-
-require 'user'
-require 'digest/sha1'
+require 'test_helper'
 
 class TestUser < Test::Unit::TestCase
 
@@ -76,14 +72,4 @@ class TestUser < Test::Unit::TestCase
     assert_equal(sha1, user.password)
   end
   
-  def create_user(email, password, display_name, default_colour)
-    user = User.new
-   
-    user.email = email
-    user.password = password
-    user.display_name = display_name
-    user.default_colour = default_colour
-    
-    user
-  end
 end

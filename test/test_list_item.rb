@@ -1,9 +1,4 @@
-require 'test/unit'
-require 'mongo_mapper'
-
-require 'test/unit'
-require 'user'
-require 'list_item'
+require 'test_helper'
 
 class TestListItem < Test::Unit::TestCase
 
@@ -40,23 +35,6 @@ class TestListItem < Test::Unit::TestCase
     assert_equal(false, user.save)
     assert_equal(1, user.errors.count)
     assert(list_item.errors.on(:complete))
-  end
-
-  def create_list_item(text, colour, complete)
-    list_item = ListItem.new
-    list_item.text = text
-    list_item.colour = colour
-    list_item.complete = complete
-    list_item
-  end
-
-  def create_user(email, password, display_name, default_colour)
-    user = User.new
-    user.email = email
-    user.password = password
-    user.display_name = display_name
-    user.default_colour = default_colour
-    user
   end
 
 end
