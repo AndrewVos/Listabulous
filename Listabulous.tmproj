@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>models/user.rb</string>
+	<string>config.ru</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -14,19 +14,23 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>application.rb</string>
+			<string>listabulous.rb</string>
 			<key>lastUsed</key>
-			<date>2010-08-26T20:04:31Z</date>
+			<date>2010-08-28T16:46:34Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>config.ru</string>
+			<key>lastUsed</key>
+			<date>2010-08-28T17:00:29Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>lib/configuration.rb</string>
 			<key>lastUsed</key>
-			<date>2010-08-26T20:04:06Z</date>
+			<date>2010-08-28T17:00:29Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -83,12 +87,12 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>application.rb</key>
+		<key>config.ru</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>16</integer>
+				<integer>0</integer>
 				<key>line</key>
 				<integer>0</integer>
 			</dict>
@@ -102,9 +106,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>5</integer>
+				<integer>2</integer>
 				<key>line</key>
-				<integer>7</integer>
+				<integer>23</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -125,14 +129,56 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>models/user.rb</key>
+		<key>lib/string_encryption.rb</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>16</integer>
+				<integer>3</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>listabulous.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>9</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>test/test_authentication.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>test/test_helper.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>2</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -144,9 +190,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>44</integer>
+				<integer>41</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>42</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -157,14 +203,17 @@
 	<key>openDocuments</key>
 	<array>
 		<string>lib/configuration.rb</string>
-		<string>application.rb</string>
+		<string>config.ru</string>
+		<string>lib/string_encryption.rb</string>
+		<string>listabulous.rb</string>
 		<string>lib/authentication.rb</string>
 		<string>test/test_user.rb</string>
-		<string>models/user.rb</string>
+		<string>test/test_helper.rb</string>
+		<string>test/test_authentication.rb</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{446, 132}, {1380, 1204}}</string>
+	<string>{{279, 482}, {996, 857}}</string>
 </dict>
 </plist>
