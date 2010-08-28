@@ -1,2 +1,2 @@
-require 'application'
+require 'listabulous'
 run Sinatra::Application
