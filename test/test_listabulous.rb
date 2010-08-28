@@ -34,6 +34,18 @@ class TestListabulous < Test::Unit::TestCase
     assert(last_response.ok?)
   end
   
+  def test_post_login_returns_login_page_when_user_credentials_are_wrong
+    post '/login'
+    assert(last_response.ok?)
+    assert(last_response.body.include?("Login has failed"))
+  end
+  
+  def test_post_login_sets_cookie
+    post '/login'
+    assert_equal(1, last_request.cookies.count)
+    
+  end
+  
   def test_get_register_exists
     get '/register'
     assert(last_response.ok?)
