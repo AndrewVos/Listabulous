@@ -16,4 +16,5 @@ post '/login/?' do
 end
 
 get '/register/?' do
+  erb :register
 end

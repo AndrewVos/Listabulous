@@ -24,6 +24,11 @@ class TestListabulous < Test::Unit::TestCase
     assert(last_response.ok?)
   end
   
+  def test_get_login_returns_expected_body
+    get '/login'
+    assert(last_response.body.include?("Enter your email address and password to login."))
+  end
+  
   def test_post_login_exists
     post '/login'
     assert(last_response.ok?)
@@ -34,6 +39,11 @@ class TestListabulous < Test::Unit::TestCase
     assert(last_response.ok?)
     get '/register/'
     assert(last_response.ok?)
+  end
+  
+  def test_get_register_returns_valid_body
+    get '/register'
+    assert(last_response.body.include?("Please create an account by entering your details below."))
   end
   
 end

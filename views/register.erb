@@ -6,35 +6,44 @@ $(document).ready(function () {
 				required: true,
 				email: true
 			},
-			password: {
+			display_name: {
 				required: true
+			},
+			password: {
+				required: true,
+				minlength: 5
+			},
+			confirm_password: {
+				required: true,
+				equalTo: "password"
 			}
 		}
 	});
 });
 </script>
 <p>
-	Enter your email address and password to login. If you're a new user, click
-	<a href="/register">here</a>
-	to create an account.
+	Please create an account by entering your details below.
 </p>
-
-
-<% if @login_failed %>
+<% if @user_exists %>
 <div class="error">
-	Login has failed
+	User already exists
 </div>
 <% end %>
-
 <form method="post">
 	<div>
 		<fieldset>
-			<legend>Login</legend>
+			<legend>Register</legend>
 			<p>
 				<label for="email">
 					Email:
 				</label>
 				<input type="text" name="email"></input>
+			</p>
+			<p>
+				<label for="display_name">
+					Display Name:
+				</label>
+				<input type="text" name="display_name"></input>
 			</p>
 			<p>
 				<label for="password">
@@ -43,14 +52,18 @@ $(document).ready(function () {
 				<input type="password" name="password"></input>
 			</p>
 			<p>
+				<label for="confirm_password">
+					Confirm Password:
+				</label>
+				<input type="password" name="confirm_password"></input>
+			</p>
+			<p>
 				<label for="remember">
 					<input type="checkbox" name="remember"></input>
 					Remember details?
 				</label>
 			</p>
-			<p>
-				<input type="submit" id="loginButton" value="Login"></input>
-			</p>
+			<input type="submit" value="Register"></input>
 		</fieldset>
 	</div>
 </form>
