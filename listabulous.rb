@@ -10,11 +10,7 @@ get '/login/?' do
   erb :login
 end
 
-post '/login/?' do
-  puts params[:email]
-  puts params[:password]
-  puts params[:remember]
-  
+post '/login/?' do  
   @login_failed = true
   erb :login
 end
