@@ -2,6 +2,7 @@ require 'test/unit'
 require 'mongo_mapper'
 
 require 'user'
+require 'digest/sha1'
 
 class TestUser < Test::Unit::TestCase
 
@@ -58,6 +59,21 @@ class TestUser < Test::Unit::TestCase
     assert_equal(false, second_user.save)
     assert_equal(1, second_user.errors.count)
     assert(second_user.errors.on(:email))
+  end
+  
+  def test_password_is_hashed_when_saving
+    user = create_user("email@address.com", "some password", "John Doe", "red")
+    user.save
+    sha1 = Digest::SHA1.hexdigest("some password")
+    assert_equal(sha1, user.password)
+  end
+  
+  def test_password_is_only_hashed_on_the_first_save
+    user = create_user("email@address.com", "some password", "John Doe", "red")
+    user.save
+    sha1 = Digest::SHA1.hexdigest("some password")
+    user.save
+    assert_equal(sha1, user.password)
   end
   
   def create_user(email, password, display_name, default_colour)
