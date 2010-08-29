@@ -153,5 +153,15 @@ class TestListabulous < Test::Unit::TestCase
 
     assert(last_response.body.include?("Email has already been taken"))
   end
+  
+  def test_get_logout_clears_cookies
+    user = get_new_user
+    post_login
+    
+    get '/logout'
+    assert(last_response.redirect?)
+    get '/'
+    assert_nil(last_request.cookies["user"])
+  end
 
 end

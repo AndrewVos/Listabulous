@@ -49,6 +49,11 @@ post '/login/?' do
   end
 end
 
+get '/logout/?' do
+  response.delete_cookie("user")
+  redirect '/'
+end
+
 get '/register/?' do
   erb :register
 end
