@@ -90,6 +90,13 @@ post '/api/set-user-default-colour/?' do
 end
 
 post '/api/add-list-item/?' do
+  text = params[:text]
+  colour = params[:colour]
+
+  list_item = ListItem.new(:text => text, :colour => colour, :complete => false)
+  @current_user.list_items << list_item
+  @current_user.save
+  erb :list_item, :layout => false, :locals => { :list_item => list_item }
 end
 post '/api/delete-list-item/?' do  
 end
