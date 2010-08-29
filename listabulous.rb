@@ -12,6 +12,11 @@ MongoMapper.database = "Listabulous"
 
 enable :sessions
 
+configure :production do
+  MongoMapper.connection = Mongo::Connection.new(ENV['MONGOHQ_URL'])
+end
+
+
 before do
   encrypted_user_id = request.cookies["user"]
   if encrypted_user_id != nil
