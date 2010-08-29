@@ -99,6 +99,15 @@ class TestListabulous < Test::Unit::TestCase
     get '/register'
     assert(last_response.body.include?("Please create an account by entering your details below."))
   end
+  
+  def test_get_register_redirects_to_home_if_logged_in
+    user = get_new_user
+
+    post_login
+    get '/register'
+
+    assert(last_response.redirect?)
+  end
 
   def test_post_register_with_different_passwords_displays_error  
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some other password" }
@@ -153,7 +162,7 @@ class TestListabulous < Test::Unit::TestCase
 
     assert(last_response.body.include?("Email has already been taken"))
   end
-  
+
   def test_get_logout_clears_cookies
     user = get_new_user
     post_login

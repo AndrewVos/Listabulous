@@ -55,6 +55,7 @@ get '/logout/?' do
 end
 
 get '/register/?' do
+  redirect '/' if @current_user != nil
   erb :register
 end
 
