@@ -1,3 +1,4 @@
 sinatra
 mongo_mapper
 rfc-822
+activesupport
