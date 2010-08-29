@@ -23,7 +23,7 @@ List.InitializeListItemEntry = function () {
             if (listItemEntry.val() != "") {
                 var colour = $("#ChooseDefaultColour").css("background-color");
 
-                List.ApiHtml("AddListItem", { "text": listItemEntry.val(), "colour": colour }, function (response) {
+                List.ApiHtml("add-list-item", { "text": listItemEntry.val(), "colour": colour }, function (response) {
                     listItemEntry.removeClass("Loading");
 
                     if (response) {
@@ -89,7 +89,7 @@ List.ListItemTitle_Click = function (sender) {
 
     var id = List.GetListItemId(listItem);
     var complete = listItem.hasClass("Complete");
-    List.ApiJson("MarkListItemComplete", { "id": id, "complete": complete });
+    List.ApiJson("mark-list-item-complete", { "id": id, "complete": complete });
     List.UpdateWindowTitle();
 };
 
@@ -115,7 +115,7 @@ List.DeleteListItem_Click = function (sender) {
     var listItem = sender.parent();
 
     var id = List.GetListItemId(listItem);
-    List.ApiJson("DeleteListItem", { "id": id });
+    List.ApiJson("delete-list-item", { "id": id });
     listItem.remove();
     List.UpdateWindowTitle();
 };
@@ -127,13 +127,13 @@ List.SelectColour_Click = function (sender) {
         $("#ChooseDefaultColour").css("background-color", colour);
         var listItemEntry = $("#ListItemEntry");
         listItemEntry.focus();
-        List.ApiJson("SetUserDefaultColour", { "colour": colour });
+        List.ApiJson("set-user-default-colour", { "colour": colour });
     } else if (colourPicker.data("selectedListItem")) {
         var selectedListItem = colourPicker.data("selectedListItem");
         selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
         List.SortItems();
 
-        List.ApiJson("SetListItemColour", { "id": List.GetListItemId(selectedListItem), "colour": colour.toString() });
+        List.ApiJson("set-list-item-colour", { "id": List.GetListItemId(selectedListItem), "colour": colour.toString() });
     }
 
     colourPicker.fadeOut();
@@ -180,7 +180,7 @@ List.ApiHtml = function (methodName, args, callback) {
         //the model binder doesn't support the new way of serializing parameters so we use the old behaviour:
         args = $.param(args, true);
     }
-    $.post("/ListApi/" + methodName, args, callback);
+    $.post("/api/" + methodName, args, callback);
 };
 
 List.ApiJson = function (methodName, args, callback) {
@@ -188,5 +188,5 @@ List.ApiJson = function (methodName, args, callback) {
         //the model binder doesn't support the new way of serializing parameters so we use the old behaviour:
         args = $.param(args, true);
     }
-    $.post("/ListApi/" + methodName, args, callback, "json");
+    $.post("/api/" + methodName, args, callback, "json");
 };

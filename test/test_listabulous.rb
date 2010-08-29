@@ -128,6 +128,30 @@ class TestListabulous < Test::Unit::TestCase
     assert_equal(Digest::SHA1.hexdigest("some password"), created_user.password)
     assert_equal("#69D2E7", created_user.default_colour)
   end
+  
+  def test_post_register_creates_user_and_adds_some_interesting_list_items
+    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    created_user = User.all.first
+    
+    assert_equal(5, created_user.list_items.count)
+    assert_equal("Try out Listabulous", created_user.list_items[0].text)
+    assert_equal("Click on an item to mark it as complete", created_user.list_items[1].text)
+    assert_equal("Click the coloured square on the left to change an items colour", created_user.list_items[2].text)
+    assert_equal("Items are sorted by their colour, and their text", created_user.list_items[3].text)
+    assert_equal("Click the cross on the right to delete an item", created_user.list_items[4].text)
+    
+    assert_equal("#69D2E7", created_user.list_items[0].colour)
+    assert_equal("#69D2E7", created_user.list_items[1].colour)
+    assert_equal("#69D2E7", created_user.list_items[2].colour)
+    assert_equal("#69D2E7", created_user.list_items[3].colour)
+    assert_equal("#69D2E7", created_user.list_items[4].colour)
+    
+    assert_equal(true, created_user.list_items[0].complete)
+    assert_equal(false, created_user.list_items[1].complete)
+    assert_equal(false, created_user.list_items[2].complete)
+    assert_equal(false, created_user.list_items[3].complete)
+    assert_equal(false, created_user.list_items[4].complete)
+  end
 
   def test_post_register_encrypts_user_id_and_sets_cookie
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
@@ -171,6 +195,14 @@ class TestListabulous < Test::Unit::TestCase
     assert(last_response.redirect?)
     get '/'
     assert_nil(last_request.cookies["user"])
+  end
+  
+  def test_set_user_default_colour_sets_colour
+    user = get_new_user
+    post_login
+    post '/api/set-user-default-colour', { :default_colour => "Blue"}
+    user.reload
+    assert_equal("Blue", user.default_colour)
   end
 
 end

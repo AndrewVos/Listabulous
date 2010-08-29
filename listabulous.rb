@@ -67,6 +67,12 @@ post '/register/?' do
   user.password_confirmation = params[:password_confirmation]
   user.default_colour = "#69D2E7"
 
+  user.list_items << ListItem.new(:text => "Try out Listabulous", :colour => "#69D2E7", :complete => true)
+  user.list_items << ListItem.new(:text => "Click on an item to mark it as complete", :colour => "#69D2E7", :complete => false)
+  user.list_items << ListItem.new(:text => "Click the coloured square on the left to change an items colour", :colour => "#69D2E7", :complete => false)
+  user.list_items << ListItem.new(:text => "Items are sorted by their colour, and their text", :colour => "#69D2E7", :complete => false)
+  user.list_items << ListItem.new(:text => "Click the cross on the right to delete an item", :colour => "#69D2E7", :complete => false)
+
   if user.save
     persistent = params[:remember] == "on"
     set_user_cookie(response, user, persistent)    
@@ -77,9 +83,24 @@ post '/register/?' do
   end
 end
 
+post '/api/set-user-default-colour/?' do
+  default_colour = params[:default_colour]
+  @current_user.default_colour = default_colour
+  @current_user.save
+end
+
+post '/api/add-list-item/?' do
+end
+post '/api/delete-list-item/?' do  
+end
+post '/api/set-list-item-colour/?' do
+end
+post '/api/mark-list-item-complete/?' do
+end
+
 def set_user_cookie(response, user, persistent)
   encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
-  
+
   if persistent
     response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
   else

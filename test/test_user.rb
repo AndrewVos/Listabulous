@@ -64,6 +64,12 @@ class TestUser < Test::Unit::TestCase
     assert_equal(sha1, user.password)
   end
   
+  def test_user_can_be_saved_twice
+    user = create_user("email@address.com", "some password","some password", "John Doe", "red")
+    assert(user.save)
+    assert(user.save)
+  end
+  
   def test_password_is_only_hashed_on_the_first_save
     user = create_user("email@address.com", "some password", "some password", "John Doe", "red")
     user.save

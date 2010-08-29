@@ -1,38 +1,42 @@
 <div id="List">
 	<table id="ColourPicker">
-<!--
-	        foreach (Listabulous.ColourPalette colourPalette in Model.Palettes)
-	        {
-	    <tr>
-	            foreach (string colour in colourPalette.Colours)
-	            {
-	        <td class="SelectColour" style="background-color:  colour ">
-	        </td>
-	            }
-	    </tr>
-	        }
-			-->
-	
-	</table>
-	
-    <div id="ListItemEntryContainer">
 	<!--
-        <div id="ChooseDefaultColour" style="background-color:  Model.User.DefaultColour ">
-        </div>
--->
+	foreach (Listabulous.ColourPalette colourPalette in Model.Palettes)
+	{
+	<tr>
+	foreach (string colour in colourPalette.Colours)
+	{
+	<td class="SelectColour" style="background-color:  colour ">
+	</td>
+	}
+	</tr>
+	}
+	-->
 
-        <div id="ListItemEntryBox">
-            <input type="text" id="ListItemEntry" value="" />
-        </div>
-    </div>
-    <div id="ListItems">
-        <ul id="ListItemContainer">
-<!--
-                foreach (var listItem in Model.ListItems)
-                {
-                    Html.RenderPartial("ListItem", listItem);
-                }
-         -->
-        </ul>
-    </div>
+</table>
+
+<div id="ListItemEntryContainer">
+	<div id="ChooseDefaultColour" style="background-color:  <%= escape_html @current_user.default_colour %>; ">
+	</div>
+
+	<div id="ListItemEntryBox">
+		<input type="text" id="ListItemEntry" value="" />
+	</div>
+</div>
+<div id="ListItems">
+	<ul id="ListItemContainer">
+		<% @current_user.list_items.each do |list_item| %>
+		<li class="ListItem<%= list_item.complete ? " Complete" : "" %>">
+			<input type="hidden" class="ListItemId" value="<%= list_item._id.to_s %>" />
+			<div class="ChooseListItemColour" style="background-color: <%= escape_html list_item.colour %>">
+			</div>
+			<div class="DeleteListItem">
+			</div>
+			<div class="ListItemTitle">
+				<%= escape_html list_item.text %>
+			</div>
+		</li>
+		<% end %>
+	</ul>
+</div>
 </div>

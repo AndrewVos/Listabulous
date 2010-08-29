@@ -22,7 +22,13 @@ class User
   validates_associated :list_items
   
   before_save :hash_password
+  before_validation :copy_password_confirmation
 
+  def copy_password_confirmation
+    if new_record? == false
+      @password_confirmation = @password
+    end
+  end
   def hash_password
     if new_record?
       @password = Digest::SHA1.hexdigest(@password)
