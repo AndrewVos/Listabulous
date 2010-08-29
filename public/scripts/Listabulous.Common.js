@@ -5,7 +5,7 @@
 function initializeLogo() {
     var logoImage = $("div#logo a img");
     var extension = ".png";
-    var extensionWithHover = "Hover.png";
+    var extensionWithHover = "hover.png";
 
     var preloader = new Image();
     preloader.src = logoImage.attr("src").replace(extension, extensionWithHover);

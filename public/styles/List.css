@@ -48,7 +48,7 @@
 {
     background-repeat: no-repeat;
     background-position: right center;
-    background-image: url(/Images/Loading.gif);
+    background-image: url(/images/loading.gif);
 }
 #ListItemEntry.Prompt
 {
@@ -122,11 +122,11 @@
     width: 36px;
     background-repeat: no-repeat;
     background-position: center center;
-    background-image: url(/Images/Delete.png);
+    background-image: url(/images/delete.png);
 }
 .DeleteListItem:hover
 {
-    background-image: url(/Images/DeleteHover.png);
+    background-image: url(/images/delete_hover.png);
 }
 /* List Items */
 
