@@ -37,7 +37,13 @@ post '/login/?' do
     erb :login
   else
     encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
-    response.set_cookie("user", encrypted_cookie)
+
+    if params[:remember] == "on"
+      response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
+    else
+      response.set_cookie("user", encrypted_cookie)
+    end
+
     redirect '/'
   end
 end

@@ -18,8 +18,8 @@ class TestListabulous < Test::Unit::TestCase
     user
   end
 
-  def post_login(email = "email@address.com", password = "password01")
-    post '/login', {:email => email, :password => password}
+  def post_login(email = "email@address.com", password = "password01", remember = "off")
+    post '/login', {:email => email, :password => password, :remember => remember}
   end
 
   def test_get_home_redirects_to_login_page_when_not_logged_in
@@ -57,7 +57,7 @@ class TestListabulous < Test::Unit::TestCase
   def test_post_login_returns_login_page_when_password_is_invalid
     user = get_new_user
 
-    post_login(nil,"invalid password")
+    post_login("email@address.com", "invalid password")
 
     assert(last_response.body.include?("Login has failed"))
   end
@@ -72,6 +72,18 @@ class TestListabulous < Test::Unit::TestCase
 
     assert_not_nil(last_request.cookies["user"])
     assert_equal(encrypted, last_request.cookies["user"])
+  end
+
+  def test_post_login_sets_non_persistent_cookie_when_remember_is_not_checked
+    user = get_new_user
+    post_login
+    assert_no_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])  
+  end
+
+  def test_post_login_sets_persistent_cookie_when_remember_is_checked
+    user = get_new_user
+    post_login("email@address.com", "password01", "on")
+    assert_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
   end
 
   def test_get_login_page_redirects_to_home_when_user_is_logged_in
@@ -107,12 +119,12 @@ class TestListabulous < Test::Unit::TestCase
     assert_equal(Digest::SHA1.hexdigest("some password"), created_user.password)
     assert_equal("#69D2E7", created_user.default_colour)
   end
-  
+
   def test_post_register_redirects_to_home_after_successful_account_creation
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
     assert(last_response.redirect?)
   end
-  
+
   def test_post_register_displays_error_when_email_already_exists    
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }

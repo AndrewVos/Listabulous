@@ -24,11 +24,6 @@ $(document).ready(function () {
 <p>
 	Please create an account by entering your details below.
 </p>
-<% if @email_already_in_use %>
-<div class="error">
-	There is already an account registered with this email address
-</div>
-<% end %>
 <% if @account_creation_errors %>
 <div class="error">
 	<%= @account_creation_errors %>
