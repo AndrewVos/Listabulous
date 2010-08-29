@@ -37,13 +37,8 @@ post '/login/?' do
     erb :login
   else
     encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
-
-    if params[:remember] == "on"
-      response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
-    else
-      response.set_cookie("user", encrypted_cookie)
-    end
-
+    persistent = params[:remember] == "on"
+    set_user_cookie(response, user, persistent)
     redirect '/'
   end
 end
@@ -61,9 +56,21 @@ post '/register/?' do
   user.default_colour = "#69D2E7"
 
   if user.save
+    persistent = params[:remember] == "on"
+    set_user_cookie(response, user, persistent)    
     redirect '/'
   else
     @account_creation_errors = user.errors.full_messages
     erb :register
+  end
+end
+
+def set_user_cookie(response, user, persistent)
+  encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
+  
+  if persistent
+    response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
+  else
+    response.set_cookie("user", encrypted_cookie)
   end
 end

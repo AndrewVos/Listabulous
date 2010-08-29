@@ -77,7 +77,7 @@ class TestListabulous < Test::Unit::TestCase
   def test_post_login_sets_non_persistent_cookie_when_remember_is_not_checked
     user = get_new_user
     post_login
-    assert_no_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])  
+    assert_no_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
   end
 
   def test_post_login_sets_persistent_cookie_when_remember_is_checked
@@ -118,6 +118,28 @@ class TestListabulous < Test::Unit::TestCase
     assert_equal("Timmy", created_user.display_name)
     assert_equal(Digest::SHA1.hexdigest("some password"), created_user.password)
     assert_equal("#69D2E7", created_user.default_colour)
+  end
+
+  def test_post_register_encrypts_user_id_and_sets_cookie
+    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    follow_redirect!
+    
+    created_user = User.all.first
+    
+    encrypted = StringEncryption.new.encrypt(created_user._id.to_s)
+    
+    assert_not_nil(last_request.cookies["user"])
+    assert_equal(encrypted, last_request.cookies["user"])
+  end
+  
+  def test_post_register_sets_non_persistent_cookie_when_remember_is_not_checked
+    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    assert_no_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])  
+  end
+
+  def test_post_register_sets_persistent_cookie_when_remember_is_checked
+    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password", :remember => "on" }
+    assert_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
   end
 
   def test_post_register_redirects_to_home_after_successful_account_creation
