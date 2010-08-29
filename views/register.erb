@@ -15,7 +15,7 @@ $(document).ready(function () {
 			},
 			password_confirmation: {
 				required: true,
-				equalTo: "password"
+				equalTo: "#password"
 			}
 		}
 	});
@@ -37,29 +37,29 @@ $(document).ready(function () {
 				<label for="email">
 					Email:
 				</label>
-				<input type="text" name="email"></input>
+				<input type="text" id="name" name="email"></input>
 			</p>
 			<p>
 				<label for="display_name">
 					Display Name:
 				</label>
-				<input type="text" name="display_name"></input>
+				<input type="text" id="display_name" name="display_name"></input>
 			</p>
 			<p>
 				<label for="password">
 					Password:
 				</label>
-				<input type="password" name="password"></input>
+				<input type="password" id="password" name="password"></input>
 			</p>
 			<p>
 				<label for="password_confirmation">
 					Confirm Password:
 				</label>
-				<input type="password" name="password_confirmation"></input>
+				<input type="password" id="password_confirmation" name="password_confirmation"></input>
 			</p>
 			<p>
 				<label for="remember">
-					<input type="checkbox" name="remember"></input>
+					<input type="checkbox" id="password_confirmation" name="remember"></input>
 					Remember details?
 				</label>
 			</p>

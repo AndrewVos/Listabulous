@@ -2,7 +2,13 @@ require 'rubygems'
 require 'sinatra'
 require 'mongo_mapper'
 
-require 'lib/string_encryption'
+$: << File.expand_path(File.join(File.dirname(__FILE__), "lib"))
+require 'user'
+require 'list_item'
+require 'string_encryption'
+
+MongoMapper.database = "Listabulous"
+
 
 enable :sessions
 
