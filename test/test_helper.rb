@@ -13,10 +13,11 @@ require 'digest/sha1'
 require 'string_encryption'
 
 
-def create_user(email, password, display_name, default_colour)
+def create_user(email, password, password_confirmation, display_name, default_colour)
   user = User.new
   user.email = email
   user.password = password
+  user.password_confirmation = password_confirmation
   user.display_name = display_name
   user.default_colour = default_colour
   user

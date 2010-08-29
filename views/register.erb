@@ -13,7 +13,7 @@ $(document).ready(function () {
 				required: true,
 				minlength: 5
 			},
-			confirm_password: {
+			password_confirmation: {
 				required: true,
 				equalTo: "password"
 			}
@@ -24,9 +24,14 @@ $(document).ready(function () {
 <p>
 	Please create an account by entering your details below.
 </p>
-<% if @user_exists %>
+<% if @email_already_in_use %>
 <div class="error">
-	User already exists
+	There is already an account registered with this email address
+</div>
+<% end %>
+<% if @account_creation_errors %>
+<div class="error">
+	<%= @account_creation_errors %>
 </div>
 <% end %>
 <form method="post">
@@ -52,10 +57,10 @@ $(document).ready(function () {
 				<input type="password" name="password"></input>
 			</p>
 			<p>
-				<label for="confirm_password">
+				<label for="password_confirmation">
 					Confirm Password:
 				</label>
-				<input type="password" name="confirm_password"></input>
+				<input type="password" name="password_confirmation"></input>
 			</p>
 			<p>
 				<label for="remember">

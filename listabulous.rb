@@ -45,3 +45,19 @@ end
 get '/register/?' do
   erb :register
 end
+
+post '/register/?' do
+  user = User.new
+  user.email = params[:email]
+  user.display_name = params[:display_name]
+  user.password = params[:password]
+  user.password_confirmation = params[:password_confirmation]
+  user.default_colour = "#69D2E7"
+
+  if user.save
+    redirect '/'
+  else
+    @account_creation_errors = user.errors.full_messages
+    erb :register
+  end
+end
