@@ -1,5 +1,5 @@
-require 'test_helper'
-
+require 'mongo_mapper'
+require 'list_item'
 require 'rfc-822'
 require 'digest/sha1'
 

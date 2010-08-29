@@ -36,24 +36,18 @@
 					<img src="../../Images/Logo.png" alt="Listabulous" />
 				</a>
 			</div>
-
-			<!--      
-			if (Request.IsAuthenticated)
-			{ 
-
-<span id="account"><span id="DisplayName">
-Model.User.DisplayName 
-- </span>
-Html.ActionLink("Account", "Index", "Account")
-Html.ActionLink("Logout","Index","Logout") 
-</span>
-
-}
-%>-->
-</div>
-<div id="main">
-	<%= yield %>
-</div>
-</div>
+			<% if @current_user != nil %>
+			<span id="account"><span id="DisplayName">
+				<%= @current_user.display_name %>
+				- </span>
+				<a href="/account">Account</a>
+				<a href="/logout">Logout</a>
+			</span>
+			<% end %>
+		</div>
+		<div id="main">
+			<%= yield %>
+		</div>
+	</div>
 </body>
 </html>

@@ -1,2 +1,2 @@
 require 'listabulous'
-run Sinatra::Application
+Sinatra::Application.run!
