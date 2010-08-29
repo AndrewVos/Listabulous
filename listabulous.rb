@@ -13,11 +13,11 @@ MongoMapper.database = "Listabulous"
 enable :sessions
 
 configure :production do
-  
-  if ENV['MONGOHQ_URL']
-      MongoMapper.connection = Mongo::Connection.new(ENV['MONGOHQ_URL'])
+
+  if ENV['MONGOHQ_HOST']
+    MongoMapper.connection = Mongo::Connection.new(ENV['MONGOHQ_HOST'], ENV['MONGOHQ_PORT'])
   else
-      MongoMapper.connection = Mongo::Connection.new('mongodb://localhost/sushi')
+    
   end
 end
 
