@@ -2,6 +2,7 @@ require 'test/unit'
 require 'string_encryption'
 
 class TestStringEncryption < Test::Unit::TestCase
+  
   def test_encrypt_decrypt_string
     encryptor = StringEncryption.new
     string = "Some string value"
@@ -12,4 +13,5 @@ class TestStringEncryption < Test::Unit::TestCase
     decrypted = encryptor.decrypt(encrypted)
     assert_equal(string,decrypted)
   end
+  
 end

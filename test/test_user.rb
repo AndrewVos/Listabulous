@@ -1,10 +1,11 @@
-require 'test_helper'
+require 'test/unit'
+require 'test_helper_methods'
 
 class TestUser < Test::Unit::TestCase
 
   def setup
     MongoMapper.database = "ListabulousTest"
-    User.collection.remove    
+    User.collection.remove
   end
 
   def test_does_not_save_when_email_is_empty

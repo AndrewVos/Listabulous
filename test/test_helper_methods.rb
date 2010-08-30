@@ -1,17 +1,6 @@
-require 'test/unit'
-require 'rack/test'
-
 require 'mongo_mapper'
-
 require 'user'
 require 'list_item'
-
-require 'listabulous'
-
-require 'digest/sha1'
-
-require 'string_encryption'
-
 
 def create_user(email, password, password_confirmation, display_name, default_colour)
   user = User.new
@@ -30,4 +19,3 @@ def create_list_item(text, colour, complete)
   list_item.complete = complete
   list_item
 end
-

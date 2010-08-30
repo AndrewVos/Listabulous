@@ -1,4 +1,6 @@
-require 'test_helper'
+require 'test_helper_methods'
+require 'rack/test'
+require 'listabulous'
 
 class TestListabulous < Test::Unit::TestCase
   include Rack::Test::Methods
@@ -17,9 +19,13 @@ class TestListabulous < Test::Unit::TestCase
     user.save
     user
   end
-
+  
   def post_login(email = "email@address.com", password = "password01", remember = "off")
     post '/login', {:email => email, :password => password, :remember => remember}
+  end
+  
+  def post_register_user
+    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
   end
 
   def test_get_home_redirects_to_login_page_when_not_logged_in
@@ -48,30 +54,25 @@ class TestListabulous < Test::Unit::TestCase
 
   def test_post_login_returns_login_page_when_email_is_invalid
     user = get_new_user
-
     post_login("invalid.email@address.com")
-
     assert(last_response.body.include?("Login has failed"))
   end
 
   def test_post_login_returns_login_page_when_password_is_invalid
     user = get_new_user
-
     post_login("email@address.com", "invalid password")
-
     assert(last_response.body.include?("Login has failed"))
   end
 
   def test_post_login_encrypts_user_id_and_sets_cookie
     user = get_new_user
-
-    encrypted = StringEncryption.new.encrypt(user._id.to_s)
+    encrypted_id = StringEncryption.new.encrypt(user._id.to_s)
 
     post_login
     follow_redirect!
 
     assert_not_nil(last_request.cookies["user"])
-    assert_equal(encrypted, last_request.cookies["user"])
+    assert_equal(encrypted_id, last_request.cookies["user"])
   end
 
   def test_post_login_sets_non_persistent_cookie_when_remember_is_not_checked
@@ -120,7 +121,7 @@ class TestListabulous < Test::Unit::TestCase
   end
 
   def test_post_register_creates_user
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    post_register_user
     created_user = User.all.first
     assert_not_nil(created_user)
     assert_equal("email@address.com", created_user.email)
@@ -130,7 +131,7 @@ class TestListabulous < Test::Unit::TestCase
   end
 
   def test_post_register_creates_user_and_adds_some_interesting_list_items
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    post_register_user
     created_user = User.all.first
 
     assert_equal(5, created_user.list_items.count)
@@ -154,7 +155,7 @@ class TestListabulous < Test::Unit::TestCase
   end
 
   def test_post_register_encrypts_user_id_and_sets_cookie
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    post_register_user
     follow_redirect!
 
     created_user = User.all.first
@@ -166,7 +167,7 @@ class TestListabulous < Test::Unit::TestCase
   end
 
   def test_post_register_sets_non_persistent_cookie_when_remember_is_not_checked
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    post_register_user
     assert_no_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])  
   end
 
@@ -176,13 +177,13 @@ class TestListabulous < Test::Unit::TestCase
   end
 
   def test_post_register_redirects_to_home_after_successful_account_creation
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    post_register_user
     assert(last_response.redirect?)
   end
 
   def test_post_register_displays_error_when_email_already_exists    
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
-    post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+    post_register_user
+    post_register_user
 
     assert(last_response.body.include?("Email has already been taken"))
   end
@@ -247,7 +248,7 @@ class TestListabulous < Test::Unit::TestCase
     user.reload
     assert_equal(0, user.list_items.count)
   end
-  
+
   def test_set_list_item_colour_sets_item_colour
     user = get_new_user
     post_login
@@ -256,12 +257,12 @@ class TestListabulous < Test::Unit::TestCase
     colour = "black as my soul"
     user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
     user.save
-    
+
     post '/api/set-list-item-colour', { :id => user.list_items.first._id.to_s, :colour => "white"}
     user.reload
     assert_equal("white", user.list_items.first.colour)
   end
-  
+
   def test_mark_list_item_complete_marks_item_complete
     user = get_new_user
     post_login
@@ -270,9 +271,10 @@ class TestListabulous < Test::Unit::TestCase
     colour = "black as my soul"
     user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
     user.save
-    
+
     post '/api/mark-list-item-complete', { :id => user.list_items.first._id.to_s, :complete => true}
     user.reload
     assert_equal(true, user.list_items.first.complete)
   end
+  
 end

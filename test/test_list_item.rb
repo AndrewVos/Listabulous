@@ -1,4 +1,5 @@
-require 'test_helper'
+require 'test/unit'
+require 'test_helper_methods'
 
 class TestListItem < Test::Unit::TestCase
 

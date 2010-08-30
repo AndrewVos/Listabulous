@@ -131,7 +131,7 @@ span#account a
 {
 	span#DisplayName;
 }
-label.error
+div.error, label.error
 {
 	color: red;	
 }
