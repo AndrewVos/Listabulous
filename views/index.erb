@@ -1,33 +1,18 @@
 <div id="List">
-	<table id="ColourPicker">
-		<!--
-		foreach (Listabulous.ColourPalette colourPalette in Model.Palettes)
-		{
-		<tr>
-		foreach (string colour in colourPalette.Colours)
-		{
-		<td class="SelectColour" style="background-color:  colour ">
-		</td>
-		}
-		</tr>
-		}
-		-->
-
-	</table>
-
-	<div id="ListItemEntryContainer">
-		<div id="ChooseDefaultColour" style="background-color:  <%= escape_html @current_user.default_colour %>; ">
-		</div>
-
-		<div id="ListItemEntryBox">
-			<input type="text" id="ListItemEntry" value="" />
-		</div>
+<%= erb :colour_picker, :layout => false %>
+<div id="ListItemEntryContainer">
+	<div id="ChooseDefaultColour" style="background-color:  <%= escape_html @current_user.default_colour %>; ">
 	</div>
-	<div id="ListItems">
-		<ul id="ListItemContainer">
-			<% @current_user.list_items.each do |list_item| %>
-			<%= erb :list_item, :layout => false, :locals => { :list_item => list_item } %>
-			<% end %>
-		</ul>
+
+	<div id="ListItemEntryBox">
+		<input type="text" id="ListItemEntry" value="" />
 	</div>
+</div>
+<div id="ListItems">
+	<ul id="ListItemContainer">
+		<% @current_user.list_items.each do |list_item| %>
+		<%= erb :list_item, :layout => false, :locals => { :list_item => list_item } %>
+		<% end %>
+	</ul>
+</div>
 </div>

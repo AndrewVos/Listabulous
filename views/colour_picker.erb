@@ -1,0 +1,29 @@
+<%
+colour_palettes = {}
+colour_palettes["Giant Goldfish"] = ["#69D2E7", "#A7DBD8", "#E0E4CC", "#F38630", "#FA6900"]
+colour_palettes["mellon ball surprise"] = ["#D1F2A5", "#EFFAB4", "#FFC48C", "#FF9F80", "#F56991"]
+colour_palettes["cheer up emo kid"] = ["#556270", "#4ECDC4", "#C7F464", "#FF6B6B", "#C44D58"]
+%>
+<table id="ColourPicker">
+	<% colour_palettes.each do |color_palette_name, colour_palette_colours| %>
+	<tr>
+		<% colour_palette_colours.each do |colour_palette_colour| %>
+		<td class="SelectColour" style="background-color:  <%= colour_palette_colour %> ">
+		</td>	
+		<% end %>
+	</tr>
+	<% end %>
+	<!--
+	foreach (Listabulous.ColourPalette colourPalette in Model.Palettes)
+	{
+	<tr>
+	foreach (string colour in colourPalette.Colours)
+	{
+	<td class="SelectColour" style="background-color:  colour ">
+	</td>
+	}
+	</tr>
+	}
+	-->
+
+</table>
