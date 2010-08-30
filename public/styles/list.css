@@ -1,0 +1,133 @@
+﻿*
+{
+    margin: 0;
+    padding: 0;
+}
+
+/* List */
+#List
+{
+    font-size: 12px;
+    border: 1px solid #e4e4e4;
+}
+/* List */
+
+/* Item Entry Text Box */
+#ListItemEntryContainer
+{
+    width: 100%;
+    height: 36px;
+    text-align: center;
+    border-bottom: 1px solid #e4e4e4;
+    white-space: nowrap;
+}
+#ChooseDefaultColour
+{
+    cursor: pointer;
+    float: left;
+    width: 25px;
+    height: 36px;
+}
+#ListItemEntryBox
+{
+    margin-left: 25px;
+    width: auto;
+    height: 100%;
+}
+#ListItemEntry
+{
+    font-size: 20px;
+    outline: none;
+    width: 99%;
+    margin: auto;
+    margin-top: 5px;
+    border: 0;
+    -webkit-appearance: none;
+}
+#ListItemEntry.Loading
+{
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-image: url(/images/loading.gif);
+}
+#ListItemEntry.Prompt
+{
+    color: #696969;
+    text-align: right;
+}
+/* Item Entry Text Box */
+
+/* Colour Picker */
+#ColourPicker
+{
+    display: none;
+    border: 1px solid #E4E4E4;
+    background-color: White;
+    position: absolute;
+}
+.SelectColour
+{
+    cursor: pointer;
+    border: 3px solid white;
+    float: left;
+    height: 36px;
+    width: 20px;
+}
+/* Colour Picker */
+
+/* List Items */
+#ListItemContainer
+{
+    padding: 0;
+    margin: 0;
+}
+.ListItem
+{
+    list-style: none;
+    cursor: pointer;
+    overflow: hidden;
+    height: 36px;
+    line-height: 36px;
+}
+.ListItem:hover
+{
+    background-color: #f1f0f0;
+}
+.ChooseListItemColour
+{
+    cursor: pointer;
+    float: left;
+    height: 36px;
+    width: 25px;
+}
+.ListItem.Complete .ListItemTitle
+{
+    text-decoration: line-through;
+}
+.ListItemTitle
+{
+    height: 100%;
+    margin: 0;
+    padding-left: 1em;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.DeleteListItem
+{
+    cursor: pointer;
+    display: inline;
+    float: right;
+    height: 36px;
+    width: 36px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url(/images/delete.png);
+}
+.DeleteListItem:hover
+{
+    background-image: url(/images/delete_hover.png);
+}
+/* List Items */
+
+
