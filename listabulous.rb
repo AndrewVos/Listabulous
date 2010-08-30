@@ -15,8 +15,8 @@ enable :sessions
 configure :production do
 
   if ENV['MONGOHQ_URL']
-    puts ENV
-    MongoMapper.connection = Mongo::Connection.new(ENV['MONGOHQ_URL'])
+    puts ENV["DB_HOST"]
+    MongoMapper.connection Mongo::Connection.new(ENV['DB_HOST'], ENV['DB_PORT'])
   else
     throw "damn!"
   end
