@@ -31,6 +31,8 @@ end
 post '/login/?' do
   if params[:email] != nil && params[:password] != nil
     email = params[:email]
+    email.downcase!
+    
     hashed_password = Digest::SHA1.hexdigest(params[:password])
     user_results = User.all(:email => email, :password => hashed_password)
     user = user_results.first

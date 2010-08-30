@@ -88,6 +88,15 @@ class TestListabulous < Test::Unit::TestCase
     assert_equal(encrypted_id, last_request.cookies["user"])
   end
 
+def test_post_login_sets_cookie_when_email_address_is_different_case
+  user = get_new_user
+  post_login("EMAIL@ADDRESS.com")
+  
+  assert(last_response.redirect?)
+  follow_redirect!
+  assert_not_nil(last_request.cookies["user"])  
+end
+
   def test_post_login_sets_non_persistent_cookie_when_remember_is_not_checked
     user = get_new_user
     post_login
