@@ -1,6 +1,7 @@
 require 'test_helper_methods'
 require 'rack/test'
 require 'listabulous'
+require 'palette'
 
 class TestListabulous < Test::Unit::TestCase
   include Rack::Test::Methods
@@ -40,6 +41,18 @@ class TestListabulous < Test::Unit::TestCase
     follow_redirect!
 
     assert(last_response.body.include?("Jonny"))
+  end
+
+  def test_get_home_renders_default_palettes
+    user = get_new_user
+
+    post_login
+    follow_redirect!
+  
+    app.new do |erb_app|
+      expected_response_body = erb_app.erb(:colour_picker, :layout => false, :locals => { :palettes => Palette.default_palettes })
+      assert(last_response.body.include?(expected_response_body))
+    end
   end
 
   def test_get_login_returns_expected_body

@@ -6,6 +6,7 @@ require 'mongo_mapper'
 
 require 'user'
 require 'list_item'
+require 'palette'
 require 'string_encryption'
 require 'configure'
 

@@ -1,5 +1,5 @@
 <div id="List">
-<%= erb :colour_picker, :layout => false %>
+<%= erb(:colour_picker, :layout => false, :locals => { :palettes => Palette.default_palettes }) %>
 <div id="ListItemEntryContainer">
 	<div id="ChooseDefaultColour" style="background-color:  <%= escape_html @current_user.default_colour %>; ">
 	</div>
@@ -11,7 +11,7 @@
 <div id="ListItems">
 	<ul id="ListItemContainer">
 		<% @current_user.list_items.each do |list_item| %>
-		<%= erb :list_item, :layout => false, :locals => { :list_item => list_item } %>
+		<%= erb(:list_item, :layout => false, :locals => { :list_item => list_item }) %>
 		<% end %>
 	</ul>
 </div>

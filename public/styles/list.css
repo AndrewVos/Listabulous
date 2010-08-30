@@ -61,17 +61,18 @@
 #ColourPicker
 {
     display: none;
-    border: 1px solid #E4E4E4;
+	border: 10px solid;
+	border-spacing: 0;
     background-color: White;
     position: absolute;
 }
 .SelectColour
 {
     cursor: pointer;
-    border: 3px solid white;
+    border: 0;
     float: left;
     height: 36px;
-    width: 20px;
+    width: 25px;
 }
 /* Colour Picker */
 
