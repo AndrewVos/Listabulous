@@ -207,7 +207,7 @@ class TestListabulous < Test::Unit::TestCase
   def test_add_list_item_adds_item
     user = get_new_user
     post_login
-    
+
     text = "This is my new list item!"
     colour = "black as my soul"
     post '/api/add-list-item', { :text => text, :colour => colour }
@@ -218,20 +218,61 @@ class TestListabulous < Test::Unit::TestCase
     assert_equal(text, list_item.text)
     assert_equal(colour, list_item.colour)
   end
-  
+
   def test_add_list_item_returns_list_item_view
     user = get_new_user
     post_login
-    
+
     text = "This is my new list item!"
     colour = "black as my soul"
     post '/api/add-list-item', { :text => text, :colour => colour }
     user.reload
-    
+
     app.new do |erb_app|
       expected_response_body = erb_app.erb :list_item, :layout => false, :locals => { :list_item => user.list_items.first }
       assert_equal(expected_response_body, last_response.body)
     end
   end
 
+  def test_delete_list_item_deletes_item
+    user = get_new_user
+    post_login
+
+    text = "This is my new list item!"
+    colour = "black as my soul"
+    user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+    user.save
+
+    post '/api/delete-list-item', { :id => user.list_items.first._id.to_s }
+    user.reload
+    assert_equal(0, user.list_items.count)
+  end
+  
+  def test_set_list_item_colour_sets_item_colour
+    user = get_new_user
+    post_login
+
+    text = "This is my new list item!"
+    colour = "black as my soul"
+    user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+    user.save
+    
+    post '/api/set-list-item-colour', { :id => user.list_items.first._id.to_s, :colour => "white"}
+    user.reload
+    assert_equal("white", user.list_items.first.colour)
+  end
+  
+  def test_mark_list_item_complete_marks_item_complete
+    user = get_new_user
+    post_login
+
+    text = "This is my new list item!"
+    colour = "black as my soul"
+    user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+    user.save
+    
+    post '/api/mark-list-item-complete', { :id => user.list_items.first._id.to_s, :complete => true}
+    user.reload
+    assert_equal(true, user.list_items.first.complete)
+  end
 end

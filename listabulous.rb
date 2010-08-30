@@ -107,11 +107,30 @@ post '/api/add-list-item/?' do
   @current_user.save
   erb :list_item, :layout => false, :locals => { :list_item => list_item }
 end
-post '/api/delete-list-item/?' do  
+
+post '/api/delete-list-item/?' do
+  id = params[:id]
+  list_item = @current_user.list_items.find(id)
+  @current_user.list_items.delete(list_item)
+  @current_user.save
 end
+
 post '/api/set-list-item-colour/?' do
+  id = params[:id]
+  colour = params[:colour]
+  
+  list_item = @current_user.list_items.find(id)
+  list_item.colour = colour
+  @current_user.save
 end
+
 post '/api/mark-list-item-complete/?' do
+  id = params[:id]
+  complete = params[:complete]
+  
+  list_item = @current_user.list_items.find(id)
+  list_item.complete = complete
+  @current_user.save
 end
 
 def set_user_cookie(response, user, persistent)
