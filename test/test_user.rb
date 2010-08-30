@@ -58,6 +58,17 @@ class TestUser < Test::Unit::TestCase
     assert(second_user.errors.on(:email))
   end
   
+  def test_user_does_not_save_when_email_address_has_trailing_spaces
+    user = create_user("   email@address.com   ", "some password","some password", "John Doe", "red")
+    assert_equal(false, user.save)
+  end
+  
+  def test_email_is_downcased_when_saving
+    user = create_user("EMAIL@address.com", "some password","some password", "John Doe", "red")
+    assert(user.save)
+    assert_equal("email@address.com", user.email)
+  end
+  
   def test_password_is_hashed_when_saving
     user = create_user("email@address.com", "some password","some password", "John Doe", "red")
     user.save

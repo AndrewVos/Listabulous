@@ -12,7 +12,7 @@ class TestPalette < Test::Unit::TestCase
   
   def test_default_palettes_returns_list_of_palettes
     default_palettes = Palette.default_palettes
-    assert_equal(11, default_palettes.count)
+    assert_equal(5, default_palettes.count)
   end
   
 end
