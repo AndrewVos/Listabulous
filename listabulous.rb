@@ -13,6 +13,11 @@ MongoMapper.database = "Listabulous"
 enable :sessions
 
 configure :production do
+  puts ENV['MONGOHQ_HOST']
+  puts ENV['MONGOHQ_PORT']
+  puts ENV['MONGOHQ_USER']
+  puts ENV['MONGOHQ_PASSWORD']
+  
   if ENV['MONGOHQ_HOST']
     MongoMapper.connection = Mongo::Connection.new(ENV['MONGOHQ_HOST'], ENV['MONGOHQ_PORT'])
     MongoMapper.database = ENV['MONGOHQ_DATABASE']
