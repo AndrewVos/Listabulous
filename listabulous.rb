@@ -7,16 +7,15 @@ require 'user'
 require 'list_item'
 require 'string_encryption'
 
-MongoMapper.database = "Listabulous"
-
-
 enable :sessions
 
 configure :production do
   #mongodb://app274790:7832nmwusv7of7nqr71yzu@flame.mongohq.com:27035/app274790
   MongoMapper.connection = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
 end
-
+configure :development do
+  MongoMapper.database = "Listabulous"
+end
 
 before do
   encrypted_user_id = request.cookies["user"]
