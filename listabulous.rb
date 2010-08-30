@@ -15,7 +15,8 @@ configure :production do
   #mongodb://app274790:7832nmwusv7of7nqr71yzu@flame.mongohq.com:27035/app274790
   MongoMapper.connection = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
   uri = URI.parse(ENV['MONGOHQ_URL'])
-  MongoMapper.database = MongoMapper.connection.db(uri.path.gsub(/^\//, ''))
+  #MongoMapper.database = MongoMapper.connection.db(uri.path.gsub(/^\//, ''))
+  MongoMapper.database = "app274790"
 end
 configure :development do
   MongoMapper.database = "Listabulous"
