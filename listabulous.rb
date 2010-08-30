@@ -14,9 +14,8 @@ require 'uri'
 configure :production do
   #mongodb://app274790:7832nmwusv7of7nqr71yzu@flame.mongohq.com:27035/app274790
   MongoMapper.connection = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
-  MongoMapper.database = MongoMapper.connection.db_name
-  puts MongoMapper.connection.db_name
-  puts MongoMapper.connection.db
+  puts MongoMapper.connection.auths.last["db"]  
+  MongoMapper.database = MongoMapper.connection.auths.last["db"]
 end
 configure :development do
   MongoMapper.database = "Listabulous"
