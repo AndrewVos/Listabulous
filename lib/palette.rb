@@ -14,9 +14,7 @@ class Palette
     palettes << Palette.new("cheer up emo kid", ["#556270", "#4ECDC4", "#C7F464", "#FF6B6B", "#C44D58"])
     palettes << Palette.new("Good Friends", ["#D9CEB2", "#948C75", "#D5DED9", "#7A6A53", "#99B2B7"])
     palettes << Palette.new("let them eat cake", ["#774F38", "#E08E79", "#F1D4AF", "#ECE5CE", "#C5E0DC"])
-    palettes << Palette.new("Conspicuous Creep", ["#0B8C8F", "#FCF8BC", "#CACF43", "#2B2825", "#D6156C"])
-    palettes << Palette.new("lucky bubble gum", ["#67917A", "#170409", "#B8AF03", "#CCBF82", "#E33258"])
-    
+        
     palettes
   end
 end
