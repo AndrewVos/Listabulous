@@ -124,6 +124,10 @@ post '/api/mark-list-item-complete/?' do
   @current_user.save
 end
 
+get '/statistics/?' do
+  erb :statistics, :locals => { :users => User.all.count }
+end
+
 def set_user_cookie(response, user, persistent)
   encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
 

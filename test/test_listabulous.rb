@@ -20,11 +20,11 @@ class TestListabulous < Test::Unit::TestCase
     user.save
     user
   end
-  
+
   def post_login(email = "email@address.com", password = "password01", remember = "off")
     post '/login', {:email => email, :password => password, :remember => remember}
   end
-  
+
   def post_register_user
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
   end
@@ -48,7 +48,7 @@ class TestListabulous < Test::Unit::TestCase
 
     post_login
     follow_redirect!
-  
+
     app.new do |erb_app|
       expected_response_body = erb_app.erb(:colour_picker, :layout => false, :locals => { :palettes => Palette.default_palettes })
       assert(last_response.body.include?(expected_response_body))
@@ -88,14 +88,14 @@ class TestListabulous < Test::Unit::TestCase
     assert_equal(encrypted_id, last_request.cookies["user"])
   end
 
-def test_post_login_sets_cookie_when_email_address_is_different_case
-  user = get_new_user
-  post_login("EMAIL@ADDRESS.com")
-  
-  assert(last_response.redirect?)
-  follow_redirect!
-  assert_not_nil(last_request.cookies["user"])  
-end
+  def test_post_login_sets_cookie_when_email_address_is_different_case
+    user = get_new_user
+    post_login("EMAIL@ADDRESS.com")
+
+    assert(last_response.redirect?)
+    follow_redirect!
+    assert_not_nil(last_request.cookies["user"])  
+  end
 
   def test_post_login_sets_non_persistent_cookie_when_remember_is_not_checked
     user = get_new_user
@@ -227,6 +227,7 @@ end
     user.reload
     assert_equal("Blue", user.default_colour)
   end
+  
   def test_add_list_item_adds_item
     user = get_new_user
     post_login
@@ -297,6 +298,21 @@ end
     post '/api/mark-list-item-complete', { :id => user.list_items.first._id.to_s, :complete => true}
     user.reload
     assert_equal(true, user.list_items.first.complete)
+  end
+  
+  def test_statistics_page_renders
+    get '/statistics'
+    assert(last_response.body.include?('<legend>Statistics</legend>'))
+  end
+
+  def test_statistics_page_displays_user_count
+    1.upto 11 do |number|
+      user = create_user("email#{number}@address.com", "password01", "password01", "Jonny", "green")
+      user.save
+    end
+
+    get '/statistics'
+    assert(last_response.body.include?('Users: 11'))
   end
   
 end
