@@ -7,6 +7,8 @@ class TestListabulous < Test::Unit::TestCase
   include Rack::Test::Methods
 
   def setup
+    ENV["SERVER_NAME"] = "example.org"
+    
     MongoMapper.database = "ListabulousTest"
     User.collection.remove
   end
@@ -108,6 +110,12 @@ class TestListabulous < Test::Unit::TestCase
     post_login("email@address.com", "password01", "on")
     assert_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
   end
+  
+  def test_post_login_sets_cookie_domain
+    user = get_new_user
+    post_login("email@address.com", "password01", "on")
+    assert(last_response["Set-Cookie"].include?("domain=.#{ENV['SERVER_NAME']}"))
+  end
 
   def test_get_login_page_redirects_to_home_when_user_is_logged_in
     user = get_new_user
@@ -198,6 +206,11 @@ class TestListabulous < Test::Unit::TestCase
     assert_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
   end
 
+  def test_post_register_sets_cookie_domain
+    post_register_user
+    assert(last_response["Set-Cookie"].include?("domain=.#{ENV['SERVER_NAME']}"))
+  end
+
   def test_post_register_redirects_to_home_after_successful_account_creation
     post_register_user
     assert(last_response.redirect?)
@@ -216,7 +229,7 @@ class TestListabulous < Test::Unit::TestCase
 
     get '/logout'
     assert(last_response.redirect?)
-    get '/'
+    follow_redirect!    
     assert_nil(last_request.cookies["user"])
   end
 

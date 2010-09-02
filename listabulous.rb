@@ -50,7 +50,7 @@ post '/login/?' do
 end
 
 get '/logout/?' do
-  response.delete_cookie("user")
+  delete_user_cookie!
   redirect '/'
 end
 
@@ -130,10 +130,16 @@ end
 
 def set_user_cookie(response, user, persistent)
   encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
+  domain = ".#{ENV['SERVER_NAME']}"
 
   if persistent
-    response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
+    response.set_cookie "user", {:value => encrypted_cookie, :domain => domain, :expires => Time.now + 94608000}
   else
-    response.set_cookie("user", encrypted_cookie)
+    response.set_cookie "user", {:value => encrypted_cookie, :domain => domain}
   end
+end
+
+def delete_user_cookie!
+  domain = ".#{ENV['SERVER_NAME']}"
+  response.delete_cookie "user", :domain => domain
 end
