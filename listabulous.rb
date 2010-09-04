@@ -12,13 +12,20 @@ require 'configure'
 
 before do
   redirect_to_www!
-  
+
   encrypted_user_id = request.cookies["user"]
   if encrypted_user_id != nil
-    user_id = StringEncryption.new.decrypt(encrypted_user_id)
-    @current_user = User.find(user_id)
-    if @current_user == nil
+    begin
+      user_id = StringEncryption.new.decrypt(encrypted_user_id)
+    rescue
       delete_user_cookie!
+    end
+    
+    if user_id != nil
+      @current_user = User.find(user_id)
+      if @current_user == nil
+        delete_user_cookie!
+      end
     end
   end
 end

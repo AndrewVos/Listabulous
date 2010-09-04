@@ -30,6 +30,29 @@ describe "Listabulous" do
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
   end
 
+context "encrypted user id in cookie encrypted with different key/iv" do
+  before :each do
+    old_key = ENV["COOKIE_ENCRYPTION_KEY"]
+    old_iv = ENV["COOKIE_ENCRYPTION_IV"]
+    ENV["COOKIE_ENCRYPTION_KEY"] = "r\036V\232bC\273\017\024HH_`p\b\221\307w\263\2115\036l\023\322\214\304na\200<\337"
+    ENV["COOKIE_ENCRYPTION_IV"] = "\032\020\ae\263^\322\213\030\206v\350'u$\233"
+    
+    user = get_new_user
+    post_login
+    follow_redirect!
+    
+    ENV["COOKIE_ENCRYPTION_KEY"] = old_key
+    ENV["COOKIE_ENCRYPTION_IV"] = old_iv
+    get '/'
+    get '/'
+  end
+  it "should remove the cookie" do
+    last_request.cookies["user"].should == nil
+  end
+  it "should redirect to the login page" do
+    last_response.redirect?.should == true
+  end
+end
 
   context "encrypted user value in cookie" do
     context "user has been deleted" do
@@ -42,10 +65,10 @@ describe "Listabulous" do
         get '/'
       end
       it "should remove the cookie" do
-        last_request.cookies["user"].should be nil
+        last_request.cookies["user"].should == nil
       end
       it "should redirect to the login page" do
-        last_response.redirect?.should be true
+        last_response.redirect?.should == true
       end
     end
   end
