@@ -3,12 +3,16 @@ require 'rack/test'
 require 'listabulous'
 require 'palette'
 
+module Rack
+  module Test
+    DEFAULT_HOST = "www.example.org"  
+  end
+end
+
 class TestListabulous < Test::Unit::TestCase
   include Rack::Test::Methods
 
-  def setup
-    ENV["SERVER_NAME"] = "example.org"
-    
+  def setup    
     MongoMapper.database = "ListabulousTest"
     User.collection.remove
   end
@@ -31,6 +35,18 @@ class TestListabulous < Test::Unit::TestCase
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
   end
 
+  def test_get_any_page_redirects_to_www_if_not_present
+    get "http://example.org/login"
+    assert(last_response.redirect?)
+    assert_equal(301, last_response.status)
+  end
+  
+  def test_get_any_page_does_not_redirect_when_host_is_localhost
+    get 'http://localhost/login'
+    assert(last_response.ok?)
+    assert(last_response.redirect? == false)
+  end
+  
   def test_get_home_redirects_to_login_page_when_not_logged_in
     get '/'
     assert(last_response.redirect?)
@@ -109,12 +125,6 @@ class TestListabulous < Test::Unit::TestCase
     user = get_new_user
     post_login("email@address.com", "password01", "on")
     assert_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
-  end
-  
-  def test_post_login_sets_cookie_domain
-    user = get_new_user
-    post_login("email@address.com", "password01", "on")
-    assert(last_response["Set-Cookie"].include?("domain=.#{ENV['SERVER_NAME']}"))
   end
 
   def test_get_login_page_redirects_to_home_when_user_is_logged_in
@@ -206,11 +216,6 @@ class TestListabulous < Test::Unit::TestCase
     assert_match(/expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../, last_response["Set-Cookie"])
   end
 
-  def test_post_register_sets_cookie_domain
-    post_register_user
-    assert(last_response["Set-Cookie"].include?("domain=.#{ENV['SERVER_NAME']}"))
-  end
-
   def test_post_register_redirects_to_home_after_successful_account_creation
     post_register_user
     assert(last_response.redirect?)
@@ -229,7 +234,7 @@ class TestListabulous < Test::Unit::TestCase
 
     get '/logout'
     assert(last_response.redirect?)
-    follow_redirect!    
+    follow_redirect!
     assert_nil(last_request.cookies["user"])
   end
 
@@ -240,7 +245,7 @@ class TestListabulous < Test::Unit::TestCase
     user.reload
     assert_equal("Blue", user.default_colour)
   end
-  
+
   def test_add_list_item_adds_item
     user = get_new_user
     post_login
@@ -312,7 +317,7 @@ class TestListabulous < Test::Unit::TestCase
     user.reload
     assert_equal(true, user.list_items.first.complete)
   end
-  
+
   def test_statistics_page_renders
     get '/statistics'
     assert(last_response.body.include?('<legend>Statistics</legend>'))
@@ -327,5 +332,5 @@ class TestListabulous < Test::Unit::TestCase
     get '/statistics'
     assert(last_response.body.include?('Users: 11'))
   end
-  
+
 end

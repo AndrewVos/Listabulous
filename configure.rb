@@ -11,5 +11,6 @@ configure :production do
 end
 
 configure :development do
+  ENV["SERVER_NAME"] = "localhost"
   MongoMapper.database = "Listabulous"
 end

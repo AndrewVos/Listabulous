@@ -11,10 +11,21 @@ require 'string_encryption'
 require 'configure'
 
 before do
+  redirect_to_www!
+  
   encrypted_user_id = request.cookies["user"]
   if encrypted_user_id != nil
     user_id = StringEncryption.new.decrypt(encrypted_user_id)
     @current_user = User.find(user_id)
+  end
+end
+
+def redirect_to_www!
+  if request.host != "localhost"
+    expected_url_start = "http://www."
+    if request.url[0, expected_url_start.length] != expected_url_start
+      redirect request.url.sub("http://", "http://www."), 301
+    end
   end
 end
 
@@ -32,7 +43,7 @@ post '/login/?' do
   if params[:email] != nil && params[:password] != nil
     email = params[:email]
     email.downcase!
-    
+
     hashed_password = Digest::SHA1.hexdigest(params[:password])
     user_results = User.all(:email => email, :password => hashed_password)
     user = user_results.first
@@ -109,7 +120,7 @@ end
 post '/api/set-list-item-colour/?' do
   id = params[:id]
   colour = params[:colour]
-  
+
   list_item = @current_user.list_items.find(id)
   list_item.colour = colour
   @current_user.save
@@ -118,7 +129,7 @@ end
 post '/api/mark-list-item-complete/?' do
   id = params[:id]
   complete = params[:complete]
-  
+
   list_item = @current_user.list_items.find(id)
   list_item.complete = complete
   @current_user.save
@@ -130,16 +141,14 @@ end
 
 def set_user_cookie(response, user, persistent)
   encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
-  domain = ".#{ENV['SERVER_NAME']}"
 
   if persistent
-    response.set_cookie "user", {:value => encrypted_cookie, :domain => domain, :expires => Time.now + 94608000}
+    response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
   else
-    response.set_cookie "user", {:value => encrypted_cookie, :domain => domain}
+    response.set_cookie "user", {:value => encrypted_cookie}
   end
 end
 
 def delete_user_cookie!
-  domain = ".#{ENV['SERVER_NAME']}"
-  response.delete_cookie "user", :domain => domain
+  response.delete_cookie "user"
 end
