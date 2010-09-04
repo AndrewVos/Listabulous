@@ -34,67 +34,7 @@ class TestListabulous < Test::Unit::TestCase
   def post_register_user
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
   end
-
-  def test_get_any_page_redirects_to_www_if_not_present
-    get "http://example.org/login"
-    assert(last_response.redirect?)
-    assert_equal(301, last_response.status)
-  end
   
-  def test_get_any_page_does_not_redirect_when_host_is_localhost
-    get 'http://localhost/login'
-    assert(last_response.ok?)
-    assert(last_response.redirect? == false)
-  end
-  
-  def test_get_home_redirects_to_login_page_when_not_logged_in
-    get '/'
-    assert(last_response.redirect?)
-  end
-
-  def test_get_home_shows_display_name_when_logged_in
-    user = get_new_user
-
-    post_login
-    follow_redirect!
-
-    assert(last_response.body.include?("Jonny"))
-  end
-
-  def test_get_home_renders_default_palettes
-    user = get_new_user
-
-    post_login
-    follow_redirect!
-
-    app.new do |erb_app|
-      expected_response_body = erb_app.erb(:colour_picker, :layout => false, :locals => { :palettes => Palette.default_palettes })
-      assert(last_response.body.include?(expected_response_body))
-    end
-  end
-
-  def test_get_login_returns_expected_body
-    get '/login'
-    assert(last_response.body.include?("Enter your email address and password to login."))
-  end
-
-  def test_post_login_returns_login_page_when_user_credentials_are_empty
-    post '/login'
-    assert(last_response.body.include?("Login has failed"))
-  end
-
-  def test_post_login_returns_login_page_when_email_is_invalid
-    user = get_new_user
-    post_login("invalid.email@address.com")
-    assert(last_response.body.include?("Login has failed"))
-  end
-
-  def test_post_login_returns_login_page_when_password_is_invalid
-    user = get_new_user
-    post_login("email@address.com", "invalid password")
-    assert(last_response.body.include?("Login has failed"))
-  end
-
   def test_post_login_encrypts_user_id_and_sets_cookie
     user = get_new_user
     encrypted_id = StringEncryption.new.encrypt(user._id.to_s)

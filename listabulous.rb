@@ -17,6 +17,9 @@ before do
   if encrypted_user_id != nil
     user_id = StringEncryption.new.decrypt(encrypted_user_id)
     @current_user = User.find(user_id)
+    if @current_user == nil
+      delete_user_cookie!
+    end
   end
 end
 
