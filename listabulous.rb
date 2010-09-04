@@ -12,7 +12,19 @@ require 'configure'
 
 before do
   redirect_to_www!
+  load_user_from_cookie
+end
 
+def redirect_to_www!
+  if request.host != "localhost"
+    expected_url_start = "http://www."
+    if request.url[0, expected_url_start.length] != expected_url_start
+      redirect request.url.sub("http://", "http://www."), 301
+    end
+  end
+end
+
+def load_user_from_cookie
   encrypted_user_id = request.cookies["user"]
   if encrypted_user_id != nil
     begin
@@ -26,15 +38,6 @@ before do
       if @current_user == nil
         delete_user_cookie!
       end
-    end
-  end
-end
-
-def redirect_to_www!
-  if request.host != "localhost"
-    expected_url_start = "http://www."
-    if request.url[0, expected_url_start.length] != expected_url_start
-      redirect request.url.sub("http://", "http://www."), 301
     end
   end
 end
