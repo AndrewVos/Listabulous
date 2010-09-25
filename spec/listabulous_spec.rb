@@ -341,9 +341,9 @@ describe "Listabulous" do
       it "should set the users default colour" do
         user = get_new_user
         post_login
-        post '/api/set-user-default-colour', { :default_colour => "Blue"}
+        post '/api/set-user-default-colour', { :default_colour => "Fuchsia"}
         user.reload
-        user.default_colour.should == "Blue"
+        user.default_colour.should == "Fuchsia"
       end
     end
   end

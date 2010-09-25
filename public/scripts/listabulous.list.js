@@ -130,7 +130,7 @@ List.SelectColour_Click = function (sender) {
 		$("#ChooseDefaultColour").css("background-color", colour);
 		var listItemEntry = $("#ListItemEntry");
 		listItemEntry.focus();
-		List.ApiJson("set-user-default-colour", { "colour": colour });
+		List.ApiJson("set-user-default-colour", { "default_colour": colour });
 	} else if (colourPicker.data("selectedListItem")) {
 		var selectedListItem = colourPicker.data("selectedListItem");
 		selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
