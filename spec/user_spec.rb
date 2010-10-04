@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'mongo_mapper'
-require 'user'
 require 'spec_helper_methods'
 
 MongoMapper.database = "ListabulousTest"
