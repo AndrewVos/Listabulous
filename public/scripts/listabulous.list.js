@@ -1,9 +1,4 @@
-﻿$(document).ready(function()
- {
-    List.initialize();
-});
-
-var List = {
+﻿var List = {
     initialize: function()
     {
         this.listItemContainer = $("#list_item_container");

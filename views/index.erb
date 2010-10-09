@@ -1,3 +1,9 @@
+<script type="text/javascript">
+$(document).ready(function()
+{
+	List.initialize();
+});
+</script>
 <div id="list">
 <%= erb(:colour_picker, :layout => false, :locals => { :palettes => Palette.default_palettes }) %>
 <div id="list_item_entry_container">
