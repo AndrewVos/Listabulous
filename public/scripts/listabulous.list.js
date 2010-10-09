@@ -6,51 +6,18 @@
         this.colourPicker = $("#colour_picker");
 
         this.initializeEvents();
-        this.initializeTextBox();
         this.sortItems();
         this.updateWindowTitle();
         $(".list_item").linkify();
-    },
-
-    initializeTextBox: function()
-    {
         this.listItemEntry.watermark("« add a new task", "prompt");
-
-        this.listItemEntry.keyup(function(event) {
-            if (event.keyCode == 13 || event.keyCode == 10) {
-                if (this.listItemEntry.val() != "") {
-                    $.post("/api/add-list-item", {
-                        "text": this.listItemEntry.val(),
-                        "colour": this.getDefaultColour()
-                    },
-                    function(response) {
-                        this.listItemEntry.removeClass("loading");
-
-                        if (response)
-                        {
-                            var listItem = $(response);
-                            this.listItemContainer.append(listItem);
-                            this.sortItems();
-                            this.updateWindowTitle();
-                            listItem.linkify();
-                            listItem.fadeIn();
-                        }
-                    });
-
-                    this.listItemEntry.addClass("loading");
-                    this.listItemEntry.val("");
-                }
-            }
-        });
-    },
-
-    getDefaultColour: function()
-    {
-        return $("#choose_default_colour").css("background-color");
     },
 
     initializeEvents: function()
     {
+        this.listItemEntry.keyup(function(event) {
+            List.listItemEntry_KeyUp($(this), event);
+        });
+
         $("#choose_default_colour").live("click",
         function() {
             List.chooseDefaultColour_Click($(this));
@@ -75,6 +42,11 @@
         function() {
             List.deleteListItem_Click($(this));
         });
+    },
+
+    getDefaultColour: function()
+    {
+        return $("#choose_default_colour").css("background-color");
     },
 
     getListItemId: function(listItem)
@@ -137,6 +109,37 @@
         else
         {
             document.title = "Listabulous";
+        }
+    },
+
+    listItemEntry_KeyUp: function(sender, event)
+    {
+        if (event.keyCode == 13 || event.keyCode == 10) {
+            if (this.listItemEntry.val() != "") {
+                $.post("/api/add-list-item", {
+                    "text": this.listItemEntry.val(),
+                    "colour": this.getDefaultColour()
+                },
+                this.listItemEntry_addItemResponse);
+
+                this.listItemEntry.addClass("loading");
+                this.listItemEntry.val("");
+            }
+        }
+    },
+
+    listItemEntry_addItemResponse: function(response)
+    {
+        List.listItemEntry.removeClass("loading");
+
+        if (response)
+        {
+            var listItem = $(response);
+            List.listItemContainer.append(listItem);
+            List.sortItems();
+            List.updateWindowTitle();
+            listItem.linkify();
+            listItem.fadeIn();
         }
     },
 
