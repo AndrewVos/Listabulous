@@ -1,10 +1,10 @@
-<li class="ListItem<%= list_item.complete ? " Complete" : "" %>">
-	<input type="hidden" class="ListItemId" value="<%= list_item._id.to_s %>" />
-	<div class="ChooseListItemColour" style="background-color: <%= escape_html list_item.colour %>">
+<li class="list_item<%= list_item.complete ? " complete" : "" %>">
+	<input type="hidden" class="list_item_id" value="<%= list_item._id.to_s %>" />
+	<div class="choose_list_item_colour" style="background-color: <%= escape_html list_item.colour %>">
 	</div>
-	<div class="DeleteListItem">
+	<div class="delete_list_item">
 	</div>
-	<div class="ListItemTitle">
+	<div class="list_item_title">
 		<%= escape_html list_item.text %>
 	</div>
 </li>

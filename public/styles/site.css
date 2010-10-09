@@ -6,6 +6,7 @@
     padding: 0;
     color: #696969;
 }
+
 img
 {
     border: none;
@@ -16,10 +17,12 @@ a:link
     color: #034af3;
     text-decoration: underline;
 }
+
 a:visited
 {
     color: #505abc;
 }
+
 a:hover
 {
     color: #1d60ff;
@@ -38,24 +41,27 @@ h1, h2
     color: #000;
     font-family: Tahoma, Geneva, sans-serif;
 }
+
 h1
 {
     font-size: 2em;
     padding-bottom: 0;
     margin-bottom: 0;
 }
+
 h2
 {
     padding: 0 0 10px 0;
 }
-.page
+
+div#page
 {
     width: 90%;
     margin-left: auto;
     margin-right: auto;
 }
 
-#header
+div#header
 {
     position: relative;
     margin-bottom: 0px;
@@ -65,11 +71,13 @@ h2
     white-space: nowrap;
     overflow: hidden;
 }
-#header h1
+
+div#header h1
 {
     display: inline;
 }
-#main
+
+div#content
 {
     background-color: #fff;
     margin: 10px 0 10px 0;
@@ -117,20 +125,18 @@ div#logo
     display: inline;
     float: left;
 }
+
 div#logo a
 {
     padding-top: 5px;
 }
+
 span#account
 {
     font-size: 12px;
     float: right;
 }
 
-span#account a
-{
-	span#DisplayName;
-}
 div.error, label.error
 {
 	color: red;	

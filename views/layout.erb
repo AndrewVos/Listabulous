@@ -51,7 +51,7 @@
 	</script>
 </head>
 <body>
-	<div class="page">
+	<div id="page">
 		<div id="header">
 			<div id="logo">
 				<a href='/'>
@@ -59,7 +59,7 @@
 				</a>
 			</div>
 			<% if @current_user != nil %>
-			<span id="account"><span id="DisplayName">
+			<span id="account"><span id="display_name">
 				<%= @current_user.display_name %>
 				- </span>
 				<a href="/account">Account</a>
@@ -67,7 +67,7 @@
 			</span>
 			<% end %>
 		</div>
-		<div id="main">
+		<div id="content">
 			<%= yield %>
 		</div>
 	</div>

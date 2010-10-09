@@ -6,20 +6,20 @@
 var List = {
     initialize: function()
     {
-        this.listItemContainer = $("#ListItemContainer");
-        this.listItemEntry = $("#ListItemEntry");
-        this.colourPicker = $("#ColourPicker");
+        this.listItemContainer = $("#list_item_container");
+        this.listItemEntry = $("#list_item_entry");
+        this.colourPicker = $("#colour_picker");
 
-        this.initializeTextBox();
         this.initializeEvents();
+        this.initializeTextBox();
         this.sortItems();
         this.updateWindowTitle();
-        $(".ListItem").linkify();
+        $(".list_item").linkify();
     },
 
     initializeTextBox: function()
     {
-        this.listItemEntry.watermark("« add a new task", "Prompt");
+        this.listItemEntry.watermark("« add a new task", "prompt");
 
         this.listItemEntry.keyup(function(event) {
             if (event.keyCode == 13 || event.keyCode == 10) {
@@ -29,7 +29,7 @@ var List = {
                         "colour": this.getDefaultColour()
                     },
                     function(response) {
-                        this.listItemEntry.removeClass("Loading");
+                        this.listItemEntry.removeClass("loading");
 
                         if (response)
                         {
@@ -42,7 +42,7 @@ var List = {
                         }
                     });
 
-                    this.listItemEntry.addClass("Loading");
+                    this.listItemEntry.addClass("loading");
                     this.listItemEntry.val("");
                 }
             }
@@ -51,7 +51,7 @@ var List = {
 
     getDefaultColour: function()
     {
-        return $("#ChooseDefaultColour").css("background-color");
+        return $("#choose_default_colour").css("background-color");
     },
 
     initializeEvents: function()
@@ -60,27 +60,27 @@ var List = {
             List.document_Click($(this), event);
         });
 
-        $("#ChooseDefaultColour").live("click",
+        $("#choose_default_colour").live("click",
         function() {
             List.chooseDefaultColour_Click($(this));
         });
 
-        $(".ListItemTitle").live("click",
+        $(".list_item_title").live("click",
         function() {
             List.listItemTitle_Click($(this));
         });
 
-        $(".ChooseListItemColour").live("click",
+        $(".choose_list_item_colour").live("click",
         function() {
             List.chooseListItemColour_Click($(this));
         });
 
-        $(".SelectColour").live("click",
+        $(".select_colour").live("click",
         function() {
             List.selectColour_Click($(this));
         });
 
-        $(".DeleteListItem").live("click",
+        $(".delete_list_item").live("click",
         function() {
             List.deleteListItem_Click($(this));
         });
@@ -99,10 +99,10 @@ var List = {
     listItemTitle_Click: function(sender)
     {
         var listItem = sender.parent();
-        listItem.toggleClass("Complete");
+        listItem.toggleClass("complete");
 
         var id = this.getListItemId(listItem);
-        var complete = listItem.hasClass("Complete");
+        var complete = listItem.hasClass("complete");
 
         $.post("/api/mark-list-item-complete", {
             "id": id,
@@ -125,9 +125,8 @@ var List = {
 
         if (selectedListItem == null)
         {
-            $("#ChooseDefaultColour").css("background-color", colour);
-            var listItemEntry = $("#ListItemEntry");
-            listItemEntry.focus();
+            $("#choose_default_colour").css("background-color", colour);
+            this.listItemEntry.focus();
             $.post("/api/set-user-default-colour", {
                 "default_colour": colour
             },
@@ -135,7 +134,7 @@ var List = {
         }
         else
         {
-            selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
+            selectedListItem.find(".choose_list_item_colour").css("background-color", colour);
             this.sortItems();
             $.post("/api/set-list-item-colour", {
                 "id": this.getListItemId(selectedListItem),
@@ -160,7 +159,7 @@ var List = {
 
     getListItemId: function(listItem)
     {
-        return listItem.find(".ListItemId").attr("value");
+        return listItem.find(".list_item_id").attr("value");
     },
 
     showColourPicker: function(x, y, selectedListItem)
@@ -178,18 +177,18 @@ var List = {
 
     sortItems: function()
     {
-        var listItems = this.listItemContainer.children(".ListItem").get();
+        var listItems = this.listItemContainer.children(".list_item").get();
 
         listItems.sort(function(a, b)
         {
-            var compA = $(a).find(".ListItemTitle").text().toUpperCase();
-            var compB = $(b).find(".ListItemTitle").text().toUpperCase();
+            var compA = $(a).find(".list_item_title").text().toUpperCase();
+            var compB = $(b).find(".list_item_title").text().toUpperCase();
             return (compA < compB) ? -1: (compA > compB) ? 1: 0;
         });
         listItems.sort(function(a, b)
         {
-            var compA = $(a).find(".ChooseListItemColour").css("background-color");
-            var compB = $(b).find(".ChooseListItemColour").css("background-color");
+            var compA = $(a).find(".choose_list_item_colour").css("background-color");
+            var compB = $(b).find(".choose_list_item_colour").css("background-color");
             return (compA < compB) ? -1: (compA > compB) ? 1: 0;
         });
 
@@ -198,8 +197,8 @@ var List = {
 
     updateWindowTitle: function()
     {
-        var listItemCount = $(".ListItem").length;
-        var completeItemCount = $(".ListItem.Complete").length;
+        var listItemCount = $(".list_item").length;
+        var completeItemCount = $(".list_item.complete").length;
         var incompleteItemCount = listItemCount - completeItemCount;
         if (incompleteItemCount > 0)
         {

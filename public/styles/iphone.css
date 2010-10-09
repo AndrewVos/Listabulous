@@ -1,8 +1,8 @@
-﻿#DisplayName
+﻿#display_name
 {
     display: none;
 }
-.ListItem:hover
+.list_item:hover
 {
     background-color: white;
 }
