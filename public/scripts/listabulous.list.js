@@ -2,6 +2,7 @@
     initialize: function()
     {
         this.listItemContainer = $("#list_item_container");
+        this.chooseDefaultColour = $("#choose_default_colour")
         this.listItemEntry = $("#list_item_entry");
         this.colourPicker = $("#colour_picker");
 
@@ -15,17 +16,16 @@
     initializeEvents: function()
     {
         this.listItemEntry.keyup(function(event) {
-            List.listItemEntry_KeyUp($(this), event);
+            List.listItemEntryKeyUp($(this), event);
         });
 
-        $("#choose_default_colour").live("click",
-        function() {
-            List.chooseDefaultColour_Click($(this));
+        this.chooseDefaultColour.click(function() {
+            List.chooseDefaultColourClick($(this));
         });
 
         $(".list_item_title").live("click",
         function() {
-            List.listItemTitle_Click($(this));
+            List.listItemTitleClick($(this));
         });
 
         $(".choose_list_item_colour").live("click",
@@ -35,12 +35,12 @@
 
         $(".select_colour").live("click",
         function() {
-            List.selectColour_Click($(this));
+            List.selectColourClick($(this));
         });
 
         $(".delete_list_item").live("click",
         function() {
-            List.deleteListItem_Click($(this));
+            List.deleteListItemClick($(this));
         });
     },
 
@@ -112,7 +112,7 @@
         }
     },
 
-    listItemEntry_KeyUp: function(sender, event)
+    listItemEntryKeyUp: function(sender, event)
     {
         if (event.keyCode == 13 || event.keyCode == 10) {
             if (this.listItemEntry.val() != "") {
@@ -120,7 +120,9 @@
                     "text": this.listItemEntry.val(),
                     "colour": this.getDefaultColour()
                 },
-                this.listItemEntry_addItemResponse);
+                function(response) {
+                    List.listItemEntryAddItemResponse(response);
+                });
 
                 this.listItemEntry.addClass("loading");
                 this.listItemEntry.val("");
@@ -128,27 +130,26 @@
         }
     },
 
-    listItemEntry_addItemResponse: function(response)
+    listItemEntryAddItemResponse: function(response)
     {
-        List.listItemEntry.removeClass("loading");
-
+        this.listItemEntry.removeClass("loading");
         if (response)
         {
             var listItem = $(response);
-            List.listItemContainer.append(listItem);
-            List.sortItems();
-            List.updateWindowTitle();
+            this.listItemContainer.append(listItem);
+            this.sortItems();
+            this.updateWindowTitle();
             listItem.linkify();
             listItem.fadeIn();
         }
     },
 
-    chooseDefaultColour_Click: function(sender)
+    chooseDefaultColourClick: function(sender)
     {
         this.showColourPicker(sender.offset().left + sender.width(), sender.offset().top)
     },
 
-    listItemTitle_Click: function(sender)
+    listItemTitleClick: function(sender)
     {
         var listItem = sender.parent();
         listItem.toggleClass("complete");
@@ -170,7 +171,7 @@
         this.showColourPicker(sender.offset().left + sender.width(), sender.offset().top, listItem)
     },
 
-    selectColour_Click: function(sender)
+    selectColourClick: function(sender)
     {
         var colour = sender.css("background-color");
         var selectedListItem = this.colourPicker.data("selectedListItem");
@@ -196,7 +197,7 @@
         }
     },
 
-    deleteListItem_Click: function(sender)
+    deleteListItemClick: function(sender)
     {
         var listItem = sender.parent();
         var id = this.getListItemId(listItem);
