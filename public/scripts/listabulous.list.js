@@ -1,49 +1,49 @@
 ﻿$(document).ready(function()
- {
+{
     List.initialize();
 });
 
 var List = {
     initialize: function()
     {
-        List.listItemContainer = $("#ListItemContainer");
-        List.listItemEntry = $("#ListItemEntry");
-        List.colourPicker = $("#ColourPicker");
+        this.listItemContainer = $("#ListItemContainer");
+        this.listItemEntry = $("#ListItemEntry");
+        this.colourPicker = $("#ColourPicker");
 
-        List.initializeListItemEntryTextBox();
-        List.initializeEvents();
+        this.initializeTextBox();
+        this.initializeEvents();
+        this.sortItems();
+        this.updateWindowTitle();
         $(".ListItem").linkify();
-        List.sortItems();
-        List.updateWindowTitle();
     },
 
-    initializeListItemEntryTextBox: function()
+    initializeTextBox: function()
     {
-        List.listItemEntry.watermark("« add a new task", "Prompt");
+        this.listItemEntry.watermark("« add a new task", "Prompt");
 
-        List.listItemEntry.keyup(function(event) {
+        this.listItemEntry.keyup(function(event) {
             if (event.keyCode == 13 || event.keyCode == 10) {
-                if (List.listItemEntry.val() != "") {
+                if (this.listItemEntry.val() != "") {
                     $.post("/api/add-list-item", {
-                        "text": List.listItemEntry.val(),
-                        "colour": List.getDefaultColour()
+                        "text": this.listItemEntry.val(),
+                        "colour": this.getDefaultColour()
                     },
                     function(response) {
-                        List.listItemEntry.removeClass("Loading");
+                        this.listItemEntry.removeClass("Loading");
 
                         if (response)
                         {
                             var listItem = $(response);
+                            this.listItemContainer.append(listItem);
+                            this.sortItems();
+                            this.updateWindowTitle();
                             listItem.linkify();
-                            List.listItemContainer.append(listItem);
-                            List.sortItems();
                             listItem.fadeIn();
-                            List.updateWindowTitle();
                         }
                     });
 
-                    List.listItemEntry.addClass("Loading");
-                    List.listItemEntry.val("");
+                    this.listItemEntry.addClass("Loading");
+                    this.listItemEntry.val("");
                 }
             }
         });
@@ -86,22 +86,14 @@ var List = {
         });
     },
 
-
     document_Click: function(sender, event)
     {
-        var originalTarget = $(event.target);
-
-        if (originalTarget == null || originalTarget.is("#ChooseDefaultColour, .ChooseListItemColour") == false)
-        {
-            this.colourPicker.fadeOut()
-        }
+		this.colourPicker.hide();
     },
 
     chooseDefaultColour_Click: function(sender)
     {
-        var newOffset = sender.offset();
-        newOffset.left = newOffset.left + sender.width();
-        this.showColourPicker(newOffset.left, newOffset.top)
+        this.showColourPicker(sender.offset().left + sender.width(), sender.offset().top)
     },
 
     listItemTitle_Click: function(sender)
@@ -123,9 +115,7 @@ var List = {
     chooseListItemColour_Click: function(sender)
     {
         var listItem = sender.parent();
-        var newOffset = sender.offset();
-        newOffset.left = newOffset.left + sender.width();
-        this.showColourPicker(newOffset.left, newOffset.top, listItem)
+        this.showColourPicker(sender.offset().left + sender.width(), sender.offset().top, listItem)
     },
 
     selectColour_Click: function(sender)
