@@ -19,7 +19,7 @@ List.initializeListItemEntry = function () {
 			if (listItemEntry.val() != "") {
 				var colour = $("#ChooseDefaultColour").css("background-color");
 
-				List.ApiHtml("add-list-item", { "text": listItemEntry.val(), "colour": colour }, function (response) {
+				$.post("/api/add-list-item", { "text": listItemEntry.val(), "colour": colour }, function (response) {
 					listItemEntry.removeClass("Loading");
 
 					if (response) {
@@ -144,8 +144,4 @@ List.UpdateWindowTitle = function () {
 	} else {
 		document.title = "Listabulous";
 	}
-};
-
-List.ApiHtml = function (methodName, args, callback) {
-	$.post("/api/" + methodName, args, callback);
 };
