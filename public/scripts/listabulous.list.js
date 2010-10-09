@@ -1,5 +1,5 @@
 ﻿$(document).ready(function()
-{
+ {
     List.initialize();
 });
 
@@ -56,10 +56,6 @@ var List = {
 
     initializeEvents: function()
     {
-        $(document).click(function(event) {
-            List.document_Click($(this), event);
-        });
-
         $("#choose_default_colour").live("click",
         function() {
             List.chooseDefaultColour_Click($(this));
@@ -86,9 +82,67 @@ var List = {
         });
     },
 
-    document_Click: function(sender, event)
+    getListItemId: function(listItem)
     {
-		this.colourPicker.hide();
+        return listItem.find(".list_item_id").attr("value");
+    },
+
+    showColourPicker: function(x, y, selectedListItem)
+    {
+        if (selectedListItem === undefined) selectedListItem = null
+
+        this.colourPicker.data("selectedListItem", selectedListItem);
+        this.colourPicker.css({
+            left: x,
+            top: y
+        });
+
+        $(document).one("click",
+        function(event)
+        {
+            var eventTarget = $(event.target);
+            if (eventTarget.is(".choose_list_item_colour, #choose_default_colour") == false)
+            {
+                List.colourPicker.fadeOut();
+            }
+        });
+
+        this.colourPicker.fadeIn();
+    },
+
+    sortItems: function()
+    {
+        var listItems = this.listItemContainer.children(".list_item").get();
+
+        listItems.sort(function(a, b)
+        {
+            var compA = $(a).find(".list_item_title").text().toUpperCase();
+            var compB = $(b).find(".list_item_title").text().toUpperCase();
+            return (compA < compB) ? -1: (compA > compB) ? 1: 0;
+        });
+        listItems.sort(function(a, b)
+        {
+            var compA = $(a).find(".choose_list_item_colour").css("background-color");
+            var compB = $(b).find(".choose_list_item_colour").css("background-color");
+            return (compA < compB) ? -1: (compA > compB) ? 1: 0;
+        });
+
+        this.listItemContainer.append(listItems);
+    },
+
+    updateWindowTitle: function()
+    {
+        var listItemCount = $(".list_item").length;
+        var completeItemCount = $(".list_item.complete").length;
+        var incompleteItemCount = listItemCount - completeItemCount;
+        if (incompleteItemCount > 0)
+        {
+            document.title = $.format("{0} item{1} - Listabulous", incompleteItemCount, listItemCount == 1 ? "": "s");
+        }
+        else
+        {
+            document.title = "Listabulous";
+        }
     },
 
     chooseDefaultColour_Click: function(sender)
@@ -155,58 +209,5 @@ var List = {
             "id": id
         },
         null, "json");
-    },
-
-    getListItemId: function(listItem)
-    {
-        return listItem.find(".list_item_id").attr("value");
-    },
-
-    showColourPicker: function(x, y, selectedListItem)
-    {
-        if (selectedListItem === undefined) selectedListItem = null
-
-        this.colourPicker.data("selectedListItem", selectedListItem);
-        this.colourPicker.css({
-            left: x,
-            top: y
-        });
-        this.colourPicker.hide();
-        this.colourPicker.fadeIn();
-    },
-
-    sortItems: function()
-    {
-        var listItems = this.listItemContainer.children(".list_item").get();
-
-        listItems.sort(function(a, b)
-        {
-            var compA = $(a).find(".list_item_title").text().toUpperCase();
-            var compB = $(b).find(".list_item_title").text().toUpperCase();
-            return (compA < compB) ? -1: (compA > compB) ? 1: 0;
-        });
-        listItems.sort(function(a, b)
-        {
-            var compA = $(a).find(".choose_list_item_colour").css("background-color");
-            var compB = $(b).find(".choose_list_item_colour").css("background-color");
-            return (compA < compB) ? -1: (compA > compB) ? 1: 0;
-        });
-
-        this.listItemContainer.append(listItems);
-    },
-
-    updateWindowTitle: function()
-    {
-        var listItemCount = $(".list_item").length;
-        var completeItemCount = $(".list_item.complete").length;
-        var incompleteItemCount = listItemCount - completeItemCount;
-        if (incompleteItemCount > 0)
-        {
-            document.title = $.format("{0} item{1} - Listabulous", incompleteItemCount, listItemCount == 1 ? "": "s");
-        }
-        else
-        {
-            document.title = "Listabulous";
-        }
     }
 }
