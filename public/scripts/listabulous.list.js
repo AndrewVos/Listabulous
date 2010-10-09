@@ -1,18 +1,14 @@
 ﻿$(document).ready(function () {
-	List.Initialize();
+	List.initializeListItemEntry();
+	List.initializeListItemEvents();
+	$(".ListItem").linkify();
+	List.sortItems();
+	List.UpdateWindowTitle();
 });
 
 var List = new Object;
 
-List.Initialize = function () {
-	List.InitializeListItemEntry();
-	List.InitializeListItemEvents();
-	$(".ListItem").linkify();
-	List.SortItems();
-	List.UpdateWindowTitle();
-};
-
-List.InitializeListItemEntry = function () {
+List.initializeListItemEntry = function () {
 	var listItemEntry = $("#ListItemEntry");
 	listItemEntry.val(""); //stops firefox from adding the value in again :/
 	listItemEntry.watermark("« add a new task", "Prompt");
@@ -31,7 +27,7 @@ List.InitializeListItemEntry = function () {
 						var listItem = $(response);
 						listItem.linkify();
 						listItemContainer.append(listItem);
-						List.SortItems();
+						List.sortItems();
 						listItem.fadeIn();
 						List.UpdateWindowTitle();
 					}
@@ -44,21 +40,65 @@ List.InitializeListItemEntry = function () {
 	});
 };
 
-List.InitializeListItemEvents = function () {
-	$("#ChooseDefaultColour").live("click", function () {
-		List.ChooseDefaultColour_Click($(this));
+List.initializeListItemEvents = function () {
+	$(document).click(function(event) {
+		var originalTarget = $(event.originalTarget)
+		
+		if (originalTarget.is("#ChooseDefaultColour, .ChooseListItemColour") == false)
+		{
+			var colourPicker = $("#ColourPicker");
+			colourPicker.fadeOut()
+		}
 	});
-	$(".ListItemTitle").live("click", function (event) {
-		List.ListItemTitle_Click($(this));
+	$("#ChooseDefaultColour").live("click", function() {
+		var sender = $(this);
+		var newOffset = sender.offset();
+		newOffset.left = newOffset.left + sender.width();
+		List.showColourPicker(newOffset.left, newOffset.top)		
 	});
-	$(".ListItem .ChooseListItemColour").live("click", function () {
-		List.ChooseListItemColour_Click($(this));
+	$(".ListItemTitle").live("click", function() {
+		var sender = $(this);		
+		var listItem = sender.parent();
+		listItem.toggleClass("Complete");
+
+		var id = List.GetListItemId(listItem);
+		var complete = listItem.hasClass("Complete");
+		
+		$.post("/api/mark-list-item-complete", { "id": id, "complete": complete }, null, "json");
+		List.UpdateWindowTitle();
 	});
-	$(".SelectColour").live("click", function () {
-		List.SelectColour_Click($(this));
+	$(".ListItem .ChooseListItemColour").live("click", function() {
+		var sender = $(this);
+		var listItem = sender.parent();
+		var newOffset = sender.offset();
+		newOffset.left = newOffset.left + sender.width();
+		List.showColourPicker(newOffset.left, newOffset.top, listItem)
 	});
-	$(".DeleteListItem").live("click", function () {
-		List.DeleteListItem_Click($(this));
+	$(".SelectColour").live("click", function() {
+		var sender = $(this);
+		var colour = sender.css("background-color");
+		var colourPicker = $("#ColourPicker");
+		var selectedListItem = colourPicker.data("selectedListItem");
+
+		if (selectedListItem == null) {
+			$("#ChooseDefaultColour").css("background-color", colour);
+			var listItemEntry = $("#ListItemEntry");
+			listItemEntry.focus();
+			$.post("/api/set-user-default-colour", { "default_colour": colour }, null, "json");
+		} else {
+			selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
+			List.sortItems();
+			$.post("/api/set-list-item-colour", { "id": List.GetListItemId(selectedListItem), "colour": colour.toString() }, null, "json");
+		}
+	});
+	$(".DeleteListItem").live("click", function() {
+		var sender = $(this);
+		var listItem = sender.parent();
+		var id = List.GetListItemId(listItem);
+		
+		$.post("/api/delete-list-item", { "id": id }, null, "json");		
+		listItem.remove();
+		List.UpdateWindowTitle();
 	});
 };
 
@@ -66,83 +106,17 @@ List.GetListItemId = function (listItem) {
 	return listItem.find(".ListItemId").attr("value");
 };
 
-List.ChooseDefaultColour_Click = function (sender) {
-	var colourPicker = $("#ColourPicker");
-	if (colourPicker.is(":visible") && colourPicker.data("selectedEntryTextBox") == true) {
-		colourPicker.fadeOut();
-	} else {
-		colourPicker.data("selectedListItem", null);
-		colourPicker.data("selectedEntryTextBox", true);
+List.showColourPicker = function(x, y, selectedListItem) {
+	if (selectedListItem === undefined) selectedListItem = null
 
-		var newOffset = sender.offset();
-		newOffset.left = newOffset.left + sender.width();
-
-		colourPicker.css({ left: newOffset.left, top: newOffset.top });
-		colourPicker.hide();
-		colourPicker.fadeIn();
-	}
+	var colourPicker = $("#ColourPicker");	
+	colourPicker.data("selectedListItem", selectedListItem);
+	colourPicker.css({ left: x, top: y });
+	colourPicker.hide();
+	colourPicker.fadeIn();
 };
 
-List.ListItemTitle_Click = function (sender) {
-	var listItem = sender.parent();
-
-	listItem.toggleClass("Complete");
-
-	var id = List.GetListItemId(listItem);
-	var complete = listItem.hasClass("Complete");
-	List.ApiJson("mark-list-item-complete", { "id": id, "complete": complete });
-	List.UpdateWindowTitle();
-};
-
-List.ChooseListItemColour_Click = function (sender) {
-	var listItem = sender.parent();
-
-	var colourPicker = $("#ColourPicker");
-	if (colourPicker.is(":visible") && List.GetListItemId(listItem) == List.GetListItemId(colourPicker.data("selectedListItem"))) {
-		colourPicker.fadeOut();
-	} else {
-		colourPicker.data("selectedListItem", listItem);
-		colourPicker.data("selectedEntryTextBox", false);
-
-		var newOffset = sender.offset();
-		newOffset.left = newOffset.left + sender.width();
-
-		colourPicker.css({ left: newOffset.left, top: newOffset.top });
-		colourPicker.hide();
-		colourPicker.fadeIn();
-	}
-};
-
-List.DeleteListItem_Click = function (sender) {
-	var listItem = sender.parent();
-
-	var id = List.GetListItemId(listItem);
-	List.ApiJson("delete-list-item", { "id": id });
-	listItem.remove();
-	List.UpdateWindowTitle();
-};
-
-List.SelectColour_Click = function (sender) {
-	var colour = sender.css("background-color");
-	var colourPicker = $("#ColourPicker");
-
-	if (colourPicker.data("selectedEntryTextBox")) {
-		$("#ChooseDefaultColour").css("background-color", colour);
-		var listItemEntry = $("#ListItemEntry");
-		listItemEntry.focus();
-		List.ApiJson("set-user-default-colour", { "default_colour": colour });
-	} else if (colourPicker.data("selectedListItem")) {
-		var selectedListItem = colourPicker.data("selectedListItem");
-		selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
-		List.SortItems();
-
-		List.ApiJson("set-list-item-colour", { "id": List.GetListItemId(selectedListItem), "colour": colour.toString() });
-	}
-
-	colourPicker.fadeOut();
-};
-
-List.SortItems = function () {
+List.sortItems = function () {
 	var list = $("#ListItemContainer");
 
 	var listItems = list.children(".ListItem").get();
@@ -174,8 +148,4 @@ List.UpdateWindowTitle = function () {
 
 List.ApiHtml = function (methodName, args, callback) {
 	$.post("/api/" + methodName, args, callback);
-};
-
-List.ApiJson = function (methodName, args, callback) {
-	$.post("/api/" + methodName, args, callback, "json");
 };
