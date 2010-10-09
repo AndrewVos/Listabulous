@@ -1,19 +1,19 @@
-﻿$(document).ready(function () {
-	List.initializeListItemEntry();
-	List.initializeListItemEvents();
+﻿$(document).ready(function()
+{
+	List.initializeListItemEntryTextBox();
+	List.initializeEvents();
 	$(".ListItem").linkify();
 	List.sortItems();
 	List.updateWindowTitle();
 });
 
-var List = new Object;
+var List = new Object();
 
-List.initializeListItemEntry = function () {
+List.initializeListItemEntryTextBox = function() {
 	var listItemEntry = $("#ListItemEntry");
-	listItemEntry.val(""); //stops firefox from adding the value in again :/
 	listItemEntry.watermark("« add a new task", "Prompt");
 
-	listItemEntry.keyup(function (event) {
+	listItemEntry.keyup(function(event) {
 		if (event.keyCode == 13 || event.keyCode == 10) {
 			var listItemEntry = $(this);
 			if (listItemEntry.val() != "") {
@@ -22,7 +22,8 @@ List.initializeListItemEntry = function () {
 				$.post("/api/add-list-item", { "text": listItemEntry.val(), "colour": colour }, function (response) {
 					listItemEntry.removeClass("Loading");
 
-					if (response) {
+					if (response)
+					{
 						var listItemContainer = $("#ListItemContainer");
 						var listItem = $(response);
 						listItem.linkify();
@@ -40,22 +41,24 @@ List.initializeListItemEntry = function () {
 	});
 };
 
-List.initializeListItemEvents = function () {
+List.initializeEvents = function() {
 	$(document).click(function(event) {
 		var originalTarget = $(event.originalTarget)
-		
+
 		if (originalTarget.is("#ChooseDefaultColour, .ChooseListItemColour") == false)
 		{
 			var colourPicker = $("#ColourPicker");
 			colourPicker.fadeOut()
 		}
 	});
+
 	$("#ChooseDefaultColour").live("click", function() {
 		var sender = $(this);
 		var newOffset = sender.offset();
 		newOffset.left = newOffset.left + sender.width();
 		List.showColourPicker(newOffset.left, newOffset.top)		
 	});
+
 	$(".ListItemTitle").live("click", function() {
 		var sender = $(this);		
 		var listItem = sender.parent();
@@ -63,46 +66,52 @@ List.initializeListItemEvents = function () {
 
 		var id = List.getListItemId(listItem);
 		var complete = listItem.hasClass("Complete");
-		
+
 		$.post("/api/mark-list-item-complete", { "id": id, "complete": complete }, null, "json");
 		List.updateWindowTitle();
 	});
-	$(".ListItem .ChooseListItemColour").live("click", function() {
+
+	$(".ChooseListItemColour").live("click", function() {
 		var sender = $(this);
 		var listItem = sender.parent();
 		var newOffset = sender.offset();
 		newOffset.left = newOffset.left + sender.width();
 		List.showColourPicker(newOffset.left, newOffset.top, listItem)
 	});
+
 	$(".SelectColour").live("click", function() {
 		var sender = $(this);
 		var colour = sender.css("background-color");
 		var colourPicker = $("#ColourPicker");
 		var selectedListItem = colourPicker.data("selectedListItem");
 
-		if (selectedListItem == null) {
+		if (selectedListItem == null)
+		{
 			$("#ChooseDefaultColour").css("background-color", colour);
 			var listItemEntry = $("#ListItemEntry");
 			listItemEntry.focus();
 			$.post("/api/set-user-default-colour", { "default_colour": colour }, null, "json");
-		} else {
+		}
+		else
+		{
 			selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
 			List.sortItems();
 			$.post("/api/set-list-item-colour", { "id": List.getListItemId(selectedListItem), "colour": colour.toString() }, null, "json");
 		}
 	});
+
 	$(".DeleteListItem").live("click", function() {
 		var sender = $(this);
-		var listItem = sender.parent();
+		var listItem = sender.parent();		
 		var id = List.getListItemId(listItem);
-		
+
+		listItem.remove();	
+		List.updateWindowTitle();		
 		$.post("/api/delete-list-item", { "id": id }, null, "json");		
-		listItem.remove();
-		List.updateWindowTitle();
 	});
 };
 
-List.getListItemId = function (listItem) {
+List.getListItemId = function(listItem) {
 	return listItem.find(".ListItemId").attr("value");
 };
 
@@ -116,17 +125,19 @@ List.showColourPicker = function(x, y, selectedListItem) {
 	colourPicker.fadeIn();
 };
 
-List.sortItems = function () {
+List.sortItems = function() {
 	var list = $("#ListItemContainer");
 
 	var listItems = list.children(".ListItem").get();
 
-	listItems.sort(function (a, b) {
+	listItems.sort(function (a, b)
+	{
 		var compA = $(a).find(".ListItemTitle").text().toUpperCase();
 		var compB = $(b).find(".ListItemTitle").text().toUpperCase();
 		return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
 	});
-	listItems.sort(function (a, b) {
+	listItems.sort(function (a, b)
+	{
 		var compA = $(a).find(".ChooseListItemColour").css("background-color");
 		var compB = $(b).find(".ChooseListItemColour").css("background-color");
 		return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
@@ -135,13 +146,16 @@ List.sortItems = function () {
 	$.each(listItems, function (index, item) { list.append(item); });
 };
 
-List.updateWindowTitle = function () {
+List.updateWindowTitle = function() {
 	var listItemCount = $(".ListItem").length;
 	var completeItemCount = $(".ListItem.Complete").length;
 	var incompleteItemCount = listItemCount - completeItemCount;
-	if (incompleteItemCount > 0) {
+	if (incompleteItemCount > 0)
+	{
 		document.title = $.format("{0} item{1} - Listabulous", incompleteItemCount, listItemCount == 1 ? "" : "s");
-	} else {
+	}
+	else
+	{
 		document.title = "Listabulous";
 	}
 };
