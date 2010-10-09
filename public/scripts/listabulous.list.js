@@ -3,7 +3,7 @@
 	List.initializeListItemEvents();
 	$(".ListItem").linkify();
 	List.sortItems();
-	List.UpdateWindowTitle();
+	List.updateWindowTitle();
 });
 
 var List = new Object;
@@ -29,7 +29,7 @@ List.initializeListItemEntry = function () {
 						listItemContainer.append(listItem);
 						List.sortItems();
 						listItem.fadeIn();
-						List.UpdateWindowTitle();
+						List.updateWindowTitle();
 					}
 				});
 
@@ -61,11 +61,11 @@ List.initializeListItemEvents = function () {
 		var listItem = sender.parent();
 		listItem.toggleClass("Complete");
 
-		var id = List.GetListItemId(listItem);
+		var id = List.getListItemId(listItem);
 		var complete = listItem.hasClass("Complete");
 		
 		$.post("/api/mark-list-item-complete", { "id": id, "complete": complete }, null, "json");
-		List.UpdateWindowTitle();
+		List.updateWindowTitle();
 	});
 	$(".ListItem .ChooseListItemColour").live("click", function() {
 		var sender = $(this);
@@ -88,21 +88,21 @@ List.initializeListItemEvents = function () {
 		} else {
 			selectedListItem.find(".ChooseListItemColour").css("background-color", colour);
 			List.sortItems();
-			$.post("/api/set-list-item-colour", { "id": List.GetListItemId(selectedListItem), "colour": colour.toString() }, null, "json");
+			$.post("/api/set-list-item-colour", { "id": List.getListItemId(selectedListItem), "colour": colour.toString() }, null, "json");
 		}
 	});
 	$(".DeleteListItem").live("click", function() {
 		var sender = $(this);
 		var listItem = sender.parent();
-		var id = List.GetListItemId(listItem);
+		var id = List.getListItemId(listItem);
 		
 		$.post("/api/delete-list-item", { "id": id }, null, "json");		
 		listItem.remove();
-		List.UpdateWindowTitle();
+		List.updateWindowTitle();
 	});
 };
 
-List.GetListItemId = function (listItem) {
+List.getListItemId = function (listItem) {
 	return listItem.find(".ListItemId").attr("value");
 };
 
@@ -135,7 +135,7 @@ List.sortItems = function () {
 	$.each(listItems, function (index, item) { list.append(item); });
 };
 
-List.UpdateWindowTitle = function () {
+List.updateWindowTitle = function () {
 	var listItemCount = $(".ListItem").length;
 	var completeItemCount = $(".ListItem.Complete").length;
 	var incompleteItemCount = listItemCount - completeItemCount;
