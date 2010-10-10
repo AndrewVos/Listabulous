@@ -33,7 +33,7 @@ class User
   end
 
   def hash_password
-    if new_record?
+    if password_changed?
       @password = Digest::SHA1.hexdigest(@password)
     end
   end

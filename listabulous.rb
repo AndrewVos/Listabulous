@@ -43,6 +43,20 @@ def load_user_from_cookie
   end
 end
 
+def set_user_cookie(response, user, persistent)
+  encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
+
+  if persistent
+    response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
+  else
+    response.set_cookie "user", {:value => encrypted_cookie}
+  end
+end
+
+def delete_user_cookie!
+  response.delete_cookie "user"
+end
+
 get '/' do
   redirect '/login' if @current_user == nil
   erb :index
@@ -125,6 +139,35 @@ post '/register/?' do
   end
 end
 
+get '/forgotten_password/?' do
+  erb :forgotten_password
+end
+
+post '/forgotten_password/?' do
+  email = params[:email]
+  key = params[:key]
+  password = params[:password]
+  password_confirmation = params[:password_confirmation]
+
+  user = User.all(:email => email).first
+  @change_password_failed = user == nil
+      
+  if user != nil
+    key_is_valid = user.forgotten_password_key == key
+    passwords_are_the_same = password == password_confirmation
+    
+    @change_password_failed = !key_is_valid || !passwords_are_the_same
+    
+    if @change_password_failed == false
+      user.password = password
+      user.save
+      @change_password_successful = true
+    end
+  end
+  
+  erb :forgotten_password
+end
+
 post '/api/set-user-default-colour/?' do
   default_colour = params[:default_colour]
   @current_user.default_colour = default_colour
@@ -168,18 +211,4 @@ end
 
 get '/statistics/?' do
   erb :statistics, :locals => { :users => User.all.count }
-end
-
-def set_user_cookie(response, user, persistent)
-  encrypted_cookie = StringEncryption.new.encrypt(user._id.to_s)
-
-  if persistent
-    response.set_cookie "user", {:value => encrypted_cookie, :expires => Time.now + 94608000}
-  else
-    response.set_cookie "user", {:value => encrypted_cookie}
-  end
-end
-
-def delete_user_cookie!
-  response.delete_cookie "user"
 end

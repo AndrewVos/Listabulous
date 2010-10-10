@@ -233,7 +233,7 @@ describe "Listabulous" do
           ActiveSupport::SecureRandom.should_receive(:hex).with(16)
           post "/login", { :forgotten_password_email => user.email }
         end        
-        
+
         it "saves the random key" do
           user = get_new_user
           forgotten_password_key = "some really secure value"
@@ -242,17 +242,17 @@ describe "Listabulous" do
           user.reload
           user.forgotten_password_key.should == forgotten_password_key        
         end
-        
+
         it "sends an email containing the forgotten password url" do
           user = get_new_user
           forgotten_password_key = "some really secure value"
           ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
           Email.should_receive(:send) { |to, subject, body|
-            body.should include "http://www.listabulous.co.uk/change_password/?email=#{user.email}&key=#{forgotten_password_key}"
+            body.should include "http://www.listabulous.co.uk/forgotten_password/?email=#{user.email}&key=#{forgotten_password_key}"
           }
           post "/login", { :forgotten_password_email => user.email }
         end
-        
+
         it "sends an email using the forgotten password email template" do
           user = get_new_user
           forgotten_password_key = "some really secure value"
@@ -262,7 +262,7 @@ describe "Listabulous" do
             expected_response_body = erb_app.erb :forgotten_password_email, :layout => false, :locals => { :email => user.email, :key => forgotten_password_key }
             Email.should_receive(:send).with(anything, anything, expected_response_body)
           end
-          
+
           post "/login", { :forgotten_password_email => user.email }
         end
       end
@@ -376,124 +376,221 @@ describe "Listabulous" do
         end
       end
     end
+  end
 
-    describe "GET /logout" do
-      it "should delete the user cookie" do
-        user = get_new_user
-        post_login
+  describe "GET /logout" do
+    it "should delete the user cookie" do
+      user = get_new_user
+      post_login
 
-        get '/logout'
-        last_response.redirect?.should == true
-        follow_redirect!
-        last_request.cookies["user"].should == nil
+      get '/logout'
+      last_response.redirect?.should == true
+      follow_redirect!
+      last_request.cookies["user"].should == nil
+    end
+  end
+
+  describe "GET /forgotten_password" do
+    it "should render the forgotten_password page" do
+      get '/forgotten_password'
+      last_response.body.should include "Enter your new password below."
+    end
+  end
+
+  describe "POST /forgotten_password" do
+    context "valid email and key" do
+      before :each do
+        @user = get_new_user
+        @user.forgotten_password_key = "forgotten-password-key-42"
+        @user.save
+
+        @new_password = "kittehs!"
+        post "/forgotten_password/?email=#{@user.email}&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => @new_password }
+        @user.reload
+      end
+
+      it "should update the users password" do
+        @user.password.should == Digest::SHA1.hexdigest(@new_password)        
+      end
+
+      it "should not display an error" do
+        last_response.body.should_not include "There was an error updating your password"
+      end
+      
+      it "should display a success message" do
+        last_response.body.should include "Your password has been updated."
       end
     end
 
-    describe "GET /statistics" do
-      it "should render the statistics page" do
-        get '/statistics'
-        last_response.body.should include '<legend>Statistics</legend>'
+    context "invalid email address" do
+      before :each do
+        @user = get_new_user
+        @user.forgotten_password_key = "forgotten-password-key-42"
+        @user.save
+
+        @new_password = "kittehs!"
+        post "/forgotten_password/?email=invalid.email.address@domain.com&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => @new_password }
+        @user.reload
       end
 
-      it "should display the user count" do
-        1.upto 11 do |number|
-          user = create_user("email#{number}@address.com", "password01", "password01", "Jonny", "green")
-          user.save
-        end
-
-        get '/statistics'
-        assert(last_response.body.include?('Users: 11'))
+      it "should display an error" do
+        last_response.body.should include "There was an error updating your password"
       end
-    end
 
-    describe "POST /api/set-user-default-colour" do
-      it "should set the users default colour" do
-        user = get_new_user
-        post_login
-        post '/api/set-user-default-colour', { :default_colour => "Fuchsia"}
-        user.reload
-        user.default_colour.should == "Fuchsia"
+      it "should not update the users password" do
+        @user.password.should_not == Digest::SHA1.hexdigest(@new_password)
+      end
+      
+      it "should not display a success message" do
+        last_response.body.should_not include "Your password has been updated."
       end
     end
+    
+    context "invalid key" do
+      before :each do
+        @user = get_new_user
+        @user.forgotten_password_key = "forgotten-password-key-42"
+        @user.save
 
-    describe "POST /api/add-list-item" do
-      it "should add the item" do
-        user = get_new_user
-        post_login
-
-        text = "This is my new list item!"
-        colour = "black as my soul"
-        post '/api/add-list-item', { :text => text, :colour => colour }
-
-        user.reload
-        list_item = user.list_items.first
-        user.list_items.count.should == 1
-        list_item.text.should == text
-        list_item.colour.should == colour
+        @new_password = "kittehs!"
+        post "/forgotten_password/?email=#{@user.email}&key=this_isnt_my_key", { :password => @new_password, :password_confirmation => @new_password }
+        @user.reload
       end
-
-      it "should return the html for the new list item" do
-        user = get_new_user
-        post_login
-
-        text = "This is my new list item!"
-        colour = "black as my soul"
-        post '/api/add-list-item', { :text => text, :colour => colour }
-        user.reload
-
-        app.new do |erb_app|
-          expected_response_body = erb_app.erb :list_item, :layout => false, :locals => { :list_item => user.list_items.first }
-          last_response.body.should == expected_response_body
-        end
+      
+      it "should display an error" do
+        last_response.body.should include "There was an error updating your password"
+      end
+      
+      it "should not update the users password" do
+        @user.password.should_not == Digest::SHA1.hexdigest(@new_password)
       end
     end
+    
+    context "different passwords" do
+      before :each do
+        @user = get_new_user
+        @user.forgotten_password_key = "forgotten-password-key-42"
+        @user.save
 
-    describe "POST /api/delete-list-item" do
-      it "should delete the list item" do
-        user = get_new_user
-        post_login
+        @new_password = "kittehs!"
+        post "/forgotten_password/?email=#{@user.email}&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => "A different password. Scandalous!" }
+        @user.reload
+      end
+      
+      it "should display an error" do
+        last_response.body.should include "There was an error updating your password"
+      end
+      
+      it "should not update the users password" do
+        @user.password.should_not == Digest::SHA1.hexdigest(@new_password)
+      end
+    end
+  end
 
-        text = "This is my new list item!"
-        colour = "black as my soul"
-        user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+  describe "GET /statistics" do
+    it "should render the statistics page" do
+      get '/statistics'
+      last_response.body.should include '<legend>Statistics</legend>'
+    end
+
+    it "should display the user count" do
+      1.upto 11 do |number|
+        user = create_user("email#{number}@address.com", "password01", "password01", "Jonny", "green")
         user.save
-
-        post '/api/delete-list-item', { :id => user.list_items.first._id.to_s }
-        user.reload
-        user.list_items.count.should == 0
       end
+
+      get '/statistics'
+      assert(last_response.body.include?('Users: 11'))
+    end
+  end
+
+  describe "POST /api/set-user-default-colour" do
+    it "should set the users default colour" do
+      user = get_new_user
+      post_login
+      post '/api/set-user-default-colour', { :default_colour => "Fuchsia"}
+      user.reload
+      user.default_colour.should == "Fuchsia"
+    end
+  end
+
+  describe "POST /api/add-list-item" do
+    it "should add the item" do
+      user = get_new_user
+      post_login
+
+      text = "This is my new list item!"
+      colour = "black as my soul"
+      post '/api/add-list-item', { :text => text, :colour => colour }
+
+      user.reload
+      list_item = user.list_items.first
+      user.list_items.count.should == 1
+      list_item.text.should == text
+      list_item.colour.should == colour
     end
 
-    describe "POST /api/set-list-item-colour" do
-      it "should set the list items colour" do
-        user = get_new_user
-        post_login
+    it "should return the html for the new list item" do
+      user = get_new_user
+      post_login
 
-        text = "This is my new list item!"
-        colour = "black as my soul"
-        user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
-        user.save
+      text = "This is my new list item!"
+      colour = "black as my soul"
+      post '/api/add-list-item', { :text => text, :colour => colour }
+      user.reload
 
-        post '/api/set-list-item-colour', { :id => user.list_items.first._id.to_s, :colour => "white"}
-        user.reload
-        user.list_items.first.colour.should == "white"
+      app.new do |erb_app|
+        expected_response_body = erb_app.erb :list_item, :layout => false, :locals => { :list_item => user.list_items.first }
+        last_response.body.should == expected_response_body
       end
     end
+  end
 
-    describe "POST /api/mark-list-item-complete" do
-      it "should mark the list item complete" do
-        user = get_new_user
-        post_login
+  describe "POST /api/delete-list-item" do
+    it "should delete the list item" do
+      user = get_new_user
+      post_login
 
-        text = "This is my new list item!"
-        colour = "black as my soul"
-        user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
-        user.save
+      text = "This is my new list item!"
+      colour = "black as my soul"
+      user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+      user.save
 
-        post '/api/mark-list-item-complete', { :id => user.list_items.first._id.to_s, :complete => true}
-        user.reload
-        user.list_items.first.complete.should == true
-      end
+      post '/api/delete-list-item', { :id => user.list_items.first._id.to_s }
+      user.reload
+      user.list_items.count.should == 0
+    end
+  end
+
+  describe "POST /api/set-list-item-colour" do
+    it "should set the list items colour" do
+      user = get_new_user
+      post_login
+
+      text = "This is my new list item!"
+      colour = "black as my soul"
+      user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+      user.save
+
+      post '/api/set-list-item-colour', { :id => user.list_items.first._id.to_s, :colour => "white"}
+      user.reload
+      user.list_items.first.colour.should == "white"
+    end
+  end
+
+  describe "POST /api/mark-list-item-complete" do
+    it "should mark the list item complete" do
+      user = get_new_user
+      post_login
+
+      text = "This is my new list item!"
+      colour = "black as my soul"
+      user.list_items << ListItem.new(:text => text, :colour => colour, :complete => false)
+      user.save
+
+      post '/api/mark-list-item-complete', { :id => user.list_items.first._id.to_s, :complete => true}
+      user.reload
+      user.list_items.first.complete.should == true
     end
   end
 end
