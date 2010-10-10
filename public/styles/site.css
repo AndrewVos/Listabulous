@@ -141,3 +141,8 @@ div.error, label.error
 {
 	color: red;	
 }
+
+div.information
+{
+	color: green;
+}

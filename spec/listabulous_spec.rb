@@ -26,7 +26,7 @@ describe "Listabulous" do
     post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
   end
 
-  describe "/" do
+  describe "GET /" do
     context "request path does not have www subdomain" do
       context "request url is http://example.org/login" do
         it "should redirect to the url with the www subdomain" do
@@ -84,7 +84,6 @@ describe "Listabulous" do
         end
       end
     end
-
     context "unauthenticated user" do
       it "should redirect to /login" do
         get '/'
@@ -112,200 +111,211 @@ describe "Listabulous" do
     end
   end
 
-  describe "/login" do
-    context "get" do
-      context "unauthenticated user" do
-        it "should render the login page" do
-          get '/login'
-          last_response.body.should include "Enter your email address and password to login."
-        end
-      end
-      context "authenticated user" do
-        it "should redirect to home" do
-          user = get_new_user
-          post_login
-          get '/login'
-          last_response.redirect?.should == true
-        end        
+  describe "GET /login" do
+    context "unauthenticated user" do
+      it "should render the login page" do
+        get '/login'
+        last_response.body.should include "Enter your email address and password to login."
       end
     end
-    context "post" do
-      context "empty login details" do
-        it "should tell the user that login has failed" do
-          post '/login'
-          last_response.body.should include "Login has failed"
-        end
-      end
-      context "invalid email address" do
-        before :each do
-          user = get_new_user
-          post_login("invalid.email@address.com")
-        end
+    context "authenticated user" do
+      it "should redirect to home" do
+        user = get_new_user
+        post_login
+        get '/login'
+        last_response.redirect?.should == true
+      end        
+    end
+  end
 
-        it "should tell the user that login has failed" do
-          last_response.body.should include "Login has failed"
-        end
+  describe "POST /login" do
+    context "empty login details" do
+      it "should tell the user that login has failed" do
+        post '/login'
+        last_response.body.should include "Login has failed"
       end
-      context "invalid password" do
-        before :each do
-          user = get_new_user
-          post_login("email@address.com", "invalid password")
-        end
+    end
+    context "invalid email address" do
+      before :each do
+        user = get_new_user
+        post_login("invalid.email@address.com")
+      end
 
-        it "should tell the user that login has failed" do
-          last_response.body.should include "Login has failed"
-        end
+      it "should tell the user that login has failed" do
+        last_response.body.should include "Login has failed"
       end
-      context "valid login details" do
-        before :each do
-          user = get_new_user
-          post_login
-          follow_redirect!
-          get '/'
-        end
-        it "should encrypt the user id and set the 'user' cookie" do
-          encrypted_id = StringEncryption.new.encrypt(User.first._id.to_s)
+    end
+    context "invalid password" do
+      before :each do
+        user = get_new_user
+        post_login("email@address.com", "invalid password")
+      end
 
-          last_request.cookies["user"].should_not == nil
-          last_request.cookies["user"].should == encrypted_id
+      it "should tell the user that login has failed" do
+        last_response.body.should include "Login has failed"
+      end
+    end
+    context "valid login details" do
+      before :each do
+        user = get_new_user
+        post_login
+        follow_redirect!
+        get '/'
+      end
+      it "should encrypt the user id and set the 'user' cookie" do
+        encrypted_id = StringEncryption.new.encrypt(User.first._id.to_s)
+
+        last_request.cookies["user"].should_not == nil
+        last_request.cookies["user"].should == encrypted_id
+      end
+    end
+    context "upper case email address" do
+      before :each do
+        user = get_new_user
+        post_login("EMAIL@ADDRESS.com")
+        follow_redirect!
+      end
+      it "should set the 'user' cookie" do
+        last_request.cookies["user"].should_not == nil
+      end
+    end
+    context "'remember' is unchecked" do
+      before :each do
+        user = get_new_user
+        post_login
+      end
+      it "should set a non persistent cookie" do
+        last_response["Set-Cookie"].should_not match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
+      end
+    end
+    context "'remember' is checked" do
+      before :each do
+        user = get_new_user
+        post_login("email@address.com", "password01", "on")
+      end
+      it "should set a persistent cookie" do
+        last_response["Set-Cookie"].should match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
+      end
+    end
+    context "forgotten password email parameter is posted" do
+      context "the email address doesn't exist in the database" do
+        it "should show an error" do
+          post "/login", {:forgotten_password_email => "some.email.address@bla.com"}
+          last_response.body.should include "An account with the specified email address does not exist."
         end
       end
-      context "upper case email address" do
-        before :each do
+      context "the email address does exist" do
+        it "should show confirmation that the email has been sent" do
           user = get_new_user
-          post_login("EMAIL@ADDRESS.com")
-          follow_redirect!
-        end
-        it "should set the 'user' cookie" do
-          last_request.cookies["user"].should_not == nil
+          post "/login", { :forgotten_password_email => user.email }
+          last_response.body.should include "An email has been sent to the email address that you specified."
         end
       end
-      context "'remember' is unchecked" do
-        before :each do
-          user = get_new_user
-          post_login
-        end
-        it "should set a non persistent cookie" do
-          last_response["Set-Cookie"].should_not match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
-        end
+    end
+  end
+
+  describe "GET /register" do
+    context "unauthenticated user" do
+      it "should render the register page" do
+        get '/register'
+        last_response.body.should include "Please create an account by entering your details below."
+      end
+    end
+    context "authenticated user" do
+      it "should redirect to home" do
+        user = get_new_user
+        post_login
+        get '/register'
+        last_response.redirect?.should == true
+      end
+    end
+  end
+
+  describe "POST /register" do
+    context "password does not match password confirmation" do
+      it "should display a useful message" do
+        post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some other password" }
+        last_response.body.should include "Password doesn't match confirmation"
+      end
+    end
+    context "email is invalid" do
+      it "should display a useful message" do
+        post '/register', {:email => "this is not an email", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
+        last_response.body.should include "Email is invalid"
+      end
+    end
+    context "details are valid" do
+      it "should create a user" do
+        post_register_user
+        created_user = User.all.first
+
+        created_user.should_not == nil
+        created_user.email.should == "email@address.com"
+        created_user.display_name.should == "Timmy"
+        created_user.password.should == Digest::SHA1.hexdigest("some password")
+        created_user.default_colour.should == "#69D2E7"
+      end
+      it "should add the default list items to the user" do
+        post_register_user
+        created_user = User.all.first
+
+        created_user.list_items.count.should == 5
+
+        created_user.list_items[0].text.should == "Try out Listabulous"
+        created_user.list_items[1].text.should == "Click on an item to mark it as complete"
+        created_user.list_items[2].text.should == "Click the coloured square on the left to change an items colour"
+        created_user.list_items[3].text.should == "Items are sorted by their colour, and their text"
+        created_user.list_items[4].text.should == "Click the cross on the right to delete an item"
+
+        created_user.list_items[0].colour.should == "#69D2E7"
+        created_user.list_items[1].colour.should == "#69D2E7"
+        created_user.list_items[2].colour.should == "#69D2E7"
+        created_user.list_items[3].colour.should == "#69D2E7"
+        created_user.list_items[4].colour.should == "#69D2E7"
+
+        created_user.list_items[0].complete.should == true
+        created_user.list_items[1].complete.should == false
+        created_user.list_items[2].complete.should == false
+        created_user.list_items[3].complete.should == false
+        created_user.list_items[4].complete.should == false
+      end
+      it "should encrypt the user id and set the cookie" do
+        post_register_user
+        follow_redirect!
+
+        created_user = User.all.first
+
+        encrypted = StringEncryption.new.encrypt(created_user._id.to_s)
+
+        last_request.cookies["user"].should_not == nil
+        last_request.cookies["user"].should == encrypted
       end
       context "'remember' is checked" do
-        before :each do
-          user = get_new_user
-          post_login("email@address.com", "password01", "on")
-        end
         it "should set a persistent cookie" do
+          post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password", :remember => "on" }
           last_response["Set-Cookie"].should match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
         end
       end
-    end
-  end
-
-  describe "/register" do
-    context "get" do
-      context "unauthenticated user" do
-        it "should render the register page" do
-          get '/register'
-          last_response.body.should include "Please create an account by entering your details below."
+      context "'remember' is unchecked" do
+        it "should not set a persistent cookie" do
+          post_register_user
+          last_response["Set-Cookie"].should_not match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
         end
       end
-      context "authenticated user" do
-        it "should redirect to home" do
-          user = get_new_user
-          post_login
-          get '/register'
-          last_response.redirect?.should == true
+      it "should redirect to home" do
+        post_register_user
+        last_response.redirect?.should == true
+      end
+      context "email address already exists" do
+        it "should display a useful error" do
+          post_register_user
+          post_register_user
+          last_response.body.should include "Email has already been taken"
         end
       end
     end
-    context "post" do
-      context "password does not match password confirmation" do
-        it "should display a useful message" do
-          post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some other password" }
-          last_response.body.should include "Password doesn't match confirmation"
-        end
-      end
-      context "email is invalid" do
-        it "should display a useful message" do
-          post '/register', {:email => "this is not an email", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password" }
-          last_response.body.should include "Email is invalid"
-        end
-      end
-      context "details are valid" do
-        it "should create a user" do
-          post_register_user
-          created_user = User.all.first
 
-          created_user.should_not == nil
-          created_user.email.should == "email@address.com"
-          created_user.display_name.should == "Timmy"
-          created_user.password.should == Digest::SHA1.hexdigest("some password")
-          created_user.default_colour.should == "#69D2E7"
-        end
-        it "should add the default list items to the user" do
-          post_register_user
-          created_user = User.all.first
-
-          created_user.list_items.count.should == 5
-
-          created_user.list_items[0].text.should == "Try out Listabulous"
-          created_user.list_items[1].text.should == "Click on an item to mark it as complete"
-          created_user.list_items[2].text.should == "Click the coloured square on the left to change an items colour"
-          created_user.list_items[3].text.should == "Items are sorted by their colour, and their text"
-          created_user.list_items[4].text.should == "Click the cross on the right to delete an item"
-
-          created_user.list_items[0].colour.should == "#69D2E7"
-          created_user.list_items[1].colour.should == "#69D2E7"
-          created_user.list_items[2].colour.should == "#69D2E7"
-          created_user.list_items[3].colour.should == "#69D2E7"
-          created_user.list_items[4].colour.should == "#69D2E7"
-
-          created_user.list_items[0].complete.should == true
-          created_user.list_items[1].complete.should == false
-          created_user.list_items[2].complete.should == false
-          created_user.list_items[3].complete.should == false
-          created_user.list_items[4].complete.should == false
-        end
-        it "should encrypt the user id and set the cookie" do
-          post_register_user
-          follow_redirect!
-
-          created_user = User.all.first
-
-          encrypted = StringEncryption.new.encrypt(created_user._id.to_s)
-
-          last_request.cookies["user"].should_not == nil
-          last_request.cookies["user"].should == encrypted
-        end
-        context "'remember' is checked" do
-          it "should set a persistent cookie" do
-            post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password", :remember => "on" }
-            last_response["Set-Cookie"].should match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
-          end
-        end
-        context "'remember' is unchecked" do
-          it "should not set a persistent cookie" do
-            post_register_user
-            last_response["Set-Cookie"].should_not match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
-          end
-        end
-        it "should redirect to home" do
-          post_register_user
-          last_response.redirect?.should == true
-        end
-        context "email address already exists" do
-          it "should display a useful error" do
-            post_register_user
-            post_register_user
-            last_response.body.should include "Email has already been taken"
-          end
-        end
-      end
-    end
-  end
-
-  describe "/logout" do
-    context "get" do
+    describe "GET /logout" do
       it "should delete the user cookie" do
         user = get_new_user
         post_login
@@ -316,14 +326,13 @@ describe "Listabulous" do
         last_request.cookies["user"].should == nil
       end
     end
-  end
 
-  describe "/statistics" do
-    context "get" do
+    describe "GET /statistics" do
       it "should render the statistics page" do
         get '/statistics'
         last_response.body.should include '<legend>Statistics</legend>'
       end
+
       it "should display the user count" do
         1.upto 11 do |number|
           user = create_user("email#{number}@address.com", "password01", "password01", "Jonny", "green")
@@ -334,10 +343,8 @@ describe "Listabulous" do
         assert(last_response.body.include?('Users: 11'))
       end
     end
-  end
 
-  describe "/api/set-user-default-colour" do
-    context "post" do
+    describe "POST /api/set-user-default-colour" do
       it "should set the users default colour" do
         user = get_new_user
         post_login
@@ -346,10 +353,8 @@ describe "Listabulous" do
         user.default_colour.should == "Fuchsia"
       end
     end
-  end
 
-  describe "/api/add-list-item" do
-    context "post" do
+    describe "POST /api/add-list-item" do
       it "should add the item" do
         user = get_new_user
         post_login
@@ -364,6 +369,7 @@ describe "Listabulous" do
         list_item.text.should == text
         list_item.colour.should == colour
       end
+
       it "should return the html for the new list item" do
         user = get_new_user
         post_login
@@ -379,10 +385,8 @@ describe "Listabulous" do
         end
       end
     end
-  end
 
-  describe "/api/delete-list-item" do
-    context "post" do
+    describe "POST /api/delete-list-item" do
       it "should delete the list item" do
         user = get_new_user
         post_login
@@ -397,10 +401,8 @@ describe "Listabulous" do
         user.list_items.count.should == 0
       end
     end
-  end
 
-  describe "/api/set-list-item-colour" do
-    context "post" do
+    describe "POST /api/set-list-item-colour" do
       it "should set the list items colour" do
         user = get_new_user
         post_login
@@ -415,10 +417,8 @@ describe "Listabulous" do
         user.list_items.first.colour.should == "white"
       end
     end
-  end
 
-  describe "/api/mark-list-item-complete" do
-    context "post" do
+    describe "POST /api/mark-list-item-complete" do
       it "should mark the list item complete" do
         user = get_new_user
         post_login
@@ -434,5 +434,4 @@ describe "Listabulous" do
       end
     end
   end
-
 end
