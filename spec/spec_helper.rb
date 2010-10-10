@@ -8,6 +8,8 @@ require 'spec/autorun'
 require 'spec/interop/test'
 require 'mongo_mapper'
 require 'pony'
+require 'email'
+require 'active_support/secure_random'
 
 set :environment, :test
 set :run, false

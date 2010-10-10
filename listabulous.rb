@@ -9,6 +9,7 @@ require 'list_item'
 require 'palette'
 require 'string_encryption'
 require 'configure'
+require 'active_support/secure_random'
 
 before do
   redirect_to_www!
@@ -62,6 +63,9 @@ post '/login/?' do
     @forgotten_password_succeeded = user_account != nil
     
     if user_account != nil
+      forgotten_password_key = ActiveSupport::SecureRandom.hex(16)
+      body = erb :forgotten_password_email, :layout => false, :locals => { :email => user_account.email, :key => forgotten_password_key }
+      Email::send(user_account.email, "Listabulous - Forgotten Password Email", body)
     end
   end
   

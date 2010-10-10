@@ -11,6 +11,7 @@ class User
   attr_accessor :password_confirmation
   key :display_name, String
   key :default_colour, String
+  key :forgotten_password_key, String
   many :list_items
 
   validates_presence_of :email

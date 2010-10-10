@@ -198,17 +198,61 @@ describe "Listabulous" do
       end
     end
     context "forgotten password email parameter is posted" do
+      before :each do
+        Email.stub!(:send).with(any_args)
+        ActiveSupport::SecureRandom.stub!(:hex).with(16)
+      end
+
       context "the email address doesn't exist in the database" do
         it "should show an error" do
           post "/login", {:forgotten_password_email => "some.email.address@bla.com"}
           last_response.body.should include "An account with the specified email address does not exist."
         end
       end
-      context "the email address does exist" do
+      context "the email address exists" do
         it "should show confirmation that the email has been sent" do
           user = get_new_user
           post "/login", { :forgotten_password_email => user.email }
           last_response.body.should include "An email has been sent to the email address that you specified."
+        end
+
+        it "sends an email to the specified email address" do
+          user = get_new_user
+          Email.should_receive(:send).with(user.email, anything, anything)
+          post "/login", { :forgotten_password_email => user.email }
+        end
+
+        it "sends an email with a subject" do
+          user =  get_new_user
+          Email.should_receive(:send).with(anything, "Listabulous - Forgotten Password Email", anything)
+          post "/login", { :forgotten_password_email => user.email }
+        end
+
+        it "should generate a random key" do
+          user = get_new_user
+          ActiveSupport::SecureRandom.should_receive(:hex).with(16)
+          post "/login", { :forgotten_password_email => user.email }
+        end        
+        it "sends an email containing the forgotten password url" do
+          user = get_new_user
+          forgotten_password_key = "some really secure value"
+          ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
+          Email.should_receive(:send) { |to, subject, body|
+            body.should include "http://www.listabulous.co.uk/change-password/?email=#{user.email}&key=#{forgotten_password_key}"
+          }
+          post "/login", { :forgotten_password_email => user.email }
+        end
+        it "sends an email using the forgotten password email template" do
+          user = get_new_user
+          forgotten_password_key = "some really secure value"
+          ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
+
+          app.new do |erb_app|
+            expected_response_body = erb_app.erb :forgotten_password_email, :layout => false, :locals => { :email => user.email, :key => forgotten_password_key }
+            Email.should_receive(:send).with(anything, anything, expected_response_body)
+          end
+          
+          post "/login", { :forgotten_password_email => user.email }
         end
       end
       context "the email address is all in uppercase" do
