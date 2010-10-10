@@ -7,6 +7,7 @@ require 'spec'
 require 'spec/autorun'
 require 'spec/interop/test'
 require 'mongo_mapper'
+require 'pony'
 
 set :environment, :test
 set :run, false
