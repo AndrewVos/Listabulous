@@ -197,83 +197,93 @@ describe "Listabulous" do
         last_response["Set-Cookie"].should match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
       end
     end
-    context "forgotten password email parameter is posted" do
-      before :each do
-        Email.stub!(:send).with(any_args)
-        ActiveSupport::SecureRandom.stub!(:hex).with(16)
-      end
+  end
 
-      context "the email address doesn't exist in the database" do
-        it "should show an error" do
-          post "/login", {:forgotten_password_email => "some.email.address@bla.com"}
-          last_response.body.should include "An account with the specified email address does not exist."
-        end
-      end
-      context "the email address exists" do
-        it "should show confirmation that the email has been sent" do
-          user = get_new_user
-          post "/login", { :forgotten_password_email => user.email }
-          last_response.body.should include "An email has been sent to the email address that you specified."
-        end
+  describe "GET /forgotten_password" do
+    it "renders the forgotten password page" do
+      get "/forgotten_password"
+      last_response.body.should include "Enter your email address and click Send to send a password recovery email."
+    end
+  end
 
-        it "sends an email to the specified email address" do
-          user = get_new_user
-          Email.should_receive(:send).with(user.email, anything, anything)
-          post "/login", { :forgotten_password_email => user.email }
-        end
+  describe "POST /forgotten_password" do
+    before :each do
+      Email.stub!(:send).with(any_args)
+      ActiveSupport::SecureRandom.stub!(:hex).with(16)
+    end
 
-        it "sends an email with a subject" do
-          user =  get_new_user
-          Email.should_receive(:send).with(anything, "Listabulous - Forgotten Password Email", anything)
-          post "/login", { :forgotten_password_email => user.email }
-        end
-
-        it "should generate a random key" do
-          user = get_new_user
-          ActiveSupport::SecureRandom.should_receive(:hex).with(16)
-          post "/login", { :forgotten_password_email => user.email }
-        end        
-
-        it "saves the random key" do
-          user = get_new_user
-          forgotten_password_key = "some really secure value"
-          ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
-          post "/login", { :forgotten_password_email => user.email }
-          user.reload
-          user.forgotten_password_key.should == forgotten_password_key        
-        end
-
-        it "sends an email containing the forgotten password url" do
-          user = get_new_user
-          forgotten_password_key = "some really secure value"
-          ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
-          Email.should_receive(:send) { |to, subject, body|
-            body.should include "http://www.listabulous.co.uk/forgotten_password/?email=#{user.email}&key=#{forgotten_password_key}"
-          }
-          post "/login", { :forgotten_password_email => user.email }
-        end
-
-        it "sends an email using the forgotten password email template" do
-          user = get_new_user
-          forgotten_password_key = "some really secure value"
-          ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
-
-          app.new do |erb_app|
-            expected_response_body = erb_app.erb :forgotten_password_email, :layout => false, :locals => { :email => user.email, :key => forgotten_password_key }
-            Email.should_receive(:send).with(anything, anything, expected_response_body)
-          end
-
-          post "/login", { :forgotten_password_email => user.email }
-        end
-      end
-      context "the email address is all in uppercase" do
-        it "should show confirmation that the email has been sent" do
-          user = get_new_user
-          post "/login", { :forgotten_password_email => user.email.upcase }
-          last_response.body.should include "An email has been sent to the email address that you specified."
-        end
+    context "the email address doesn't exist in the database" do
+      it "should show an error" do
+        post "/forgotten_password", {:email => "some.email.address@bla.com"}
+        last_response.body.should include "An account with the specified email address does not exist."
       end
     end
+
+    context "the email address exists" do
+      it "should show confirmation that the email has been sent" do
+        user = get_new_user
+        post "/forgotten_password", { :email => user.email }
+        last_response.body.should include "An email has been sent to the email address that you specified."
+      end
+
+      it "sends an email to the specified email address" do
+        user = get_new_user
+        Email.should_receive(:send).with(user.email, anything, anything)
+        post "/forgotten_password", { :email => user.email }
+      end
+
+      it "sends an email with a subject" do
+        user =  get_new_user
+        Email.should_receive(:send).with(anything, "Listabulous - Forgotten Password Email", anything)
+        post "/forgotten_password", { :email => user.email }
+      end
+
+      it "should generate a random key" do
+        user = get_new_user
+        ActiveSupport::SecureRandom.should_receive(:hex).with(16)
+        post "/forgotten_password", { :email => user.email }
+      end        
+
+      it "saves the random key" do
+        user = get_new_user
+        forgotten_password_key = "some really secure value"
+        ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
+        post "/forgotten_password", { :email => user.email }
+        user.reload
+        user.forgotten_password_key.should == forgotten_password_key        
+      end
+
+      it "sends an email containing the forgotten password url" do
+        user = get_new_user
+        forgotten_password_key = "some really secure value"
+        ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
+        Email.should_receive(:send) { |to, subject, body|
+          body.should include "http://www.listabulous.co.uk/forgotten_password_change_password/?email=#{user.email}&key=#{forgotten_password_key}"
+        }
+        post "/forgotten_password", { :email => user.email }
+      end
+
+      it "sends an email using the forgotten password email template" do
+        user = get_new_user
+        forgotten_password_key = "some really secure value"
+        ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
+
+        app.new do |erb_app|
+          expected_response_body = erb_app.erb :forgotten_password_email, :layout => false, :locals => { :email => user.email, :key => forgotten_password_key }
+          Email.should_receive(:send).with(anything, anything, expected_response_body)
+        end
+
+        post "/forgotten_password", { :email => user.email }
+      end
+    end
+
+    context "the email address is all in uppercase" do
+      it "should show confirmation that the email has been sent" do
+        user = get_new_user
+        post "/forgotten_password", { :email => user.email.upcase }
+        last_response.body.should include "An email has been sent to the email address that you specified."
+      end
+    end    
   end
 
   describe "GET /register" do
@@ -317,6 +327,7 @@ describe "Listabulous" do
         created_user.password.should == Digest::SHA1.hexdigest("some password")
         created_user.default_colour.should == "#69D2E7"
       end
+
       it "should add the default list items to the user" do
         post_register_user
         created_user = User.all.first
@@ -341,6 +352,7 @@ describe "Listabulous" do
         created_user.list_items[3].complete.should == false
         created_user.list_items[4].complete.should == false
       end
+
       it "should encrypt the user id and set the cookie" do
         post_register_user
         follow_redirect!
@@ -352,22 +364,26 @@ describe "Listabulous" do
         last_request.cookies["user"].should_not == nil
         last_request.cookies["user"].should == encrypted
       end
+
       context "'remember' is checked" do
         it "should set a persistent cookie" do
           post '/register', {:email => "email@address.com", :display_name => "Timmy", :password => "some password", :password_confirmation => "some password", :remember => "on" }
           last_response["Set-Cookie"].should match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
         end
       end
+
       context "'remember' is unchecked" do
         it "should not set a persistent cookie" do
           post_register_user
           last_response["Set-Cookie"].should_not match /expires=..., \d\d-...-\d\d\d\d \d\d:\d\d:\d\d .../
         end
       end
+
       it "should redirect to home" do
         post_register_user
         last_response.redirect?.should == true
       end
+
       context "email address already exists" do
         it "should display a useful error" do
           post_register_user
@@ -390,14 +406,14 @@ describe "Listabulous" do
     end
   end
 
-  describe "GET /forgotten_password" do
-    it "should render the forgotten_password page" do
-      get '/forgotten_password'
+  describe "GET /forgotten_password_change_password" do
+    it "should render the forgotten_password_change_password page" do
+      get '/forgotten_password_change_password'
       last_response.body.should include "Enter your new password below."
     end
   end
 
-  describe "POST /forgotten_password" do
+  describe "POST /forgotten_password_change_password" do
     context "valid email and key" do
       before :each do
         @user = get_new_user
@@ -405,7 +421,7 @@ describe "Listabulous" do
         @user.save
 
         @new_password = "kittehs!"
-        post "/forgotten_password/?email=#{@user.email}&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => @new_password }
+        post "/forgotten_password_change_password/?email=#{@user.email}&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => @new_password }
         @user.reload
       end
 
@@ -416,9 +432,13 @@ describe "Listabulous" do
       it "should not display an error" do
         last_response.body.should_not include "There was an error updating your password"
       end
-      
+
       it "should display a success message" do
-        last_response.body.should include "Your password has been updated."
+        last_response.body.should include "Your password has been updated. Click <a href=\"/login\">here</a> to login."
+      end
+      
+      it "should remove the users forgotten password key" do
+        @user.forgotten_password_key.should == nil
       end
     end
 
@@ -429,7 +449,7 @@ describe "Listabulous" do
         @user.save
 
         @new_password = "kittehs!"
-        post "/forgotten_password/?email=invalid.email.address@domain.com&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => @new_password }
+        post "/forgotten_password_change_password/?email=invalid.email.address@domain.com&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => @new_password }
         @user.reload
       end
 
@@ -440,12 +460,12 @@ describe "Listabulous" do
       it "should not update the users password" do
         @user.password.should_not == Digest::SHA1.hexdigest(@new_password)
       end
-      
+
       it "should not display a success message" do
         last_response.body.should_not include "Your password has been updated."
       end
     end
-    
+
     context "invalid key" do
       before :each do
         @user = get_new_user
@@ -453,19 +473,19 @@ describe "Listabulous" do
         @user.save
 
         @new_password = "kittehs!"
-        post "/forgotten_password/?email=#{@user.email}&key=this_isnt_my_key", { :password => @new_password, :password_confirmation => @new_password }
+        post "/forgotten_password_change_password/?email=#{@user.email}&key=this_isnt_my_key", { :password => @new_password, :password_confirmation => @new_password }
         @user.reload
       end
-      
+
       it "should display an error" do
         last_response.body.should include "There was an error updating your password"
       end
-      
+
       it "should not update the users password" do
         @user.password.should_not == Digest::SHA1.hexdigest(@new_password)
       end
     end
-    
+
     context "different passwords" do
       before :each do
         @user = get_new_user
@@ -473,14 +493,14 @@ describe "Listabulous" do
         @user.save
 
         @new_password = "kittehs!"
-        post "/forgotten_password/?email=#{@user.email}&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => "A different password. Scandalous!" }
+        post "/forgotten_password_change_password/?email=#{@user.email}&key=#{@user.forgotten_password_key}", { :password => @new_password, :password_confirmation => "A different password. Scandalous!" }
         @user.reload
       end
-      
+
       it "should display an error" do
         last_response.body.should include "There was an error updating your password"
       end
-      
+
       it "should not update the users password" do
         @user.password.should_not == Digest::SHA1.hexdigest(@new_password)
       end

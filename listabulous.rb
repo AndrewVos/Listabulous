@@ -67,24 +67,7 @@ get '/login/?' do
   erb :login
 end
 
-post '/login/?' do
-  if params[:forgotten_password_email] != nil
-    forgotten_password_email = params[:forgotten_password_email]
-    forgotten_password_email.downcase!
-    user_account = User.all(:email => forgotten_password_email).first
-    
-    @forgotten_password_failed = user_account == nil
-    @forgotten_password_succeeded = user_account != nil
-    
-    if user_account != nil
-      forgotten_password_key = ActiveSupport::SecureRandom.hex(16)
-      user_account.forgotten_password_key = forgotten_password_key
-      user_account.save
-      body = erb :forgotten_password_email, :layout => false, :locals => { :email => user_account.email, :key => forgotten_password_key }
-      Email::send(user_account.email, "Listabulous - Forgotten Password Email", body)
-    end
-  end
-  
+post '/login/?' do  
   if params[:email] != nil && params[:password] != nil
     email = params[:email]
     email.downcase!
@@ -145,6 +128,28 @@ end
 
 post '/forgotten_password/?' do
   email = params[:email]
+  email.downcase!
+  user_account = User.all(:email => email).first
+
+  @forgotten_password_failed = user_account == nil
+  @forgotten_password_succeeded = user_account != nil
+
+  if user_account != nil
+    key = ActiveSupport::SecureRandom.hex(16)
+    user_account.forgotten_password_key = key
+    user_account.save
+    body = erb :forgotten_password_email, :layout => false, :locals => { :email => user_account.email, :key => key }
+    Email::send(user_account.email, "Listabulous - Forgotten Password Email", body)
+  end
+  erb :forgotten_password
+end
+
+get '/forgotten_password_change_password/?' do
+  erb :forgotten_password_change_password
+end
+
+post '/forgotten_password_change_password/?' do
+  email = params[:email]
   key = params[:key]
   password = params[:password]
   password_confirmation = params[:password_confirmation]
@@ -160,12 +165,13 @@ post '/forgotten_password/?' do
     
     if @change_password_failed == false
       user.password = password
+      user.forgotten_password_key = nil
       user.save
       @change_password_successful = true
     end
   end
   
-  erb :forgotten_password
+  erb :forgotten_password_change_password
 end
 
 post '/api/set-user-default-colour/?' do

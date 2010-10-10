@@ -24,7 +24,7 @@ $(document).ready(function () {
 <p>
 	Enter your email address and password to login. If you're a new user, click
 	<a href="/register">here</a>
-	to create an account.
+	to create an account. Click <a href="/forgotten_password">here</a> if you've forgotten your password.
 </p>
 
 
@@ -58,36 +58,6 @@ $(document).ready(function () {
 			</p>
 			<p>
 				<input type="submit" value="Login"></input>
-			</p>
-		</fieldset>
-	</div>
-</form>
-<p>
-	If you have forgotten your password, enter your email address and click Send to send a password recovery email.
-</p>
-
-<% if @forgotten_password_failed %>
-<div class="error">
-	An account with the specified email address does not exist.
-</div>
-<% end %>
-<% if @forgotten_password_succeeded %>
-<div class="information">
-	An email has been sent to the email address that you specified.
-</div>
-<% end %>
-<form id="forgotten_password" method="post">
-	<div>
-		<fieldset>
-			<legend>Forgotten Password</legend>
-			<p>
-				<label for="forgotten_password_email">
-					Email:
-				</label>
-				<input type="text" name="forgotten_password_email"></input>
-			</p>
-			<p>
-				<input type="submit" value="Send">
 			</p>
 		</fieldset>
 	</div>
