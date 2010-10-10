@@ -211,6 +211,13 @@ describe "Listabulous" do
           last_response.body.should include "An email has been sent to the email address that you specified."
         end
       end
+      context "the email address is all in uppercase" do
+        it "should show confirmation that the email has been sent" do
+          user = get_new_user
+          post "/login", { :forgotten_password_email => user.email.upcase }
+          last_response.body.should include "An email has been sent to the email address that you specified."
+        end
+      end
     end
   end
 

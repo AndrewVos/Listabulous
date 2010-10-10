@@ -55,6 +55,7 @@ end
 post '/login/?' do
   if params[:forgotten_password_email] != nil
     forgotten_password_email = params[:forgotten_password_email]
+    forgotten_password_email.downcase!
     user_account = User.all(:email => forgotten_password_email).first
     
     @forgotten_password_failed = user_account == nil
