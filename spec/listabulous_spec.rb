@@ -248,7 +248,7 @@ describe "Listabulous" do
           forgotten_password_key = "some really secure value"
           ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
           Email.should_receive(:send) { |to, subject, body|
-            body.should include "http://www.listabulous.co.uk/change-password/?email=#{user.email}&key=#{forgotten_password_key}"
+            body.should include "http://www.listabulous.co.uk/change_password/?email=#{user.email}&key=#{forgotten_password_key}"
           }
           post "/login", { :forgotten_password_email => user.email }
         end
