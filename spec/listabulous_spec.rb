@@ -233,6 +233,16 @@ describe "Listabulous" do
           ActiveSupport::SecureRandom.should_receive(:hex).with(16)
           post "/login", { :forgotten_password_email => user.email }
         end        
+        
+        it "saves the random key" do
+          user = get_new_user
+          forgotten_password_key = "some really secure value"
+          ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
+          post "/login", { :forgotten_password_email => user.email }
+          user.reload
+          user.forgotten_password_key.should == forgotten_password_key        
+        end
+        
         it "sends an email containing the forgotten password url" do
           user = get_new_user
           forgotten_password_key = "some really secure value"
@@ -242,6 +252,7 @@ describe "Listabulous" do
           }
           post "/login", { :forgotten_password_email => user.email }
         end
+        
         it "sends an email using the forgotten password email template" do
           user = get_new_user
           forgotten_password_key = "some really secure value"

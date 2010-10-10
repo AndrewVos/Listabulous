@@ -64,6 +64,8 @@ post '/login/?' do
     
     if user_account != nil
       forgotten_password_key = ActiveSupport::SecureRandom.hex(16)
+      user_account.forgotten_password_key = forgotten_password_key
+      user_account.save
       body = erb :forgotten_password_email, :layout => false, :locals => { :email => user_account.email, :key => forgotten_password_key }
       Email::send(user_account.email, "Listabulous - Forgotten Password Email", body)
     end
