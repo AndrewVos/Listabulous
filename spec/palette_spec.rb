@@ -8,6 +8,7 @@ describe Palette do
       palette.colours.should == "headshot!"
     end
   end
+  
   describe ".default_palettes" do
     it "returns the default palettes" do
       default_palettes = Palette.default_palettes

@@ -34,6 +34,7 @@ describe "Listabulous" do
         last_response.status.should == 301
       end
     end
+    
     context "with the request url http://localhost/login" do
       it "does not redirect" do
         get 'http://localhost/login'
@@ -41,6 +42,7 @@ describe "Listabulous" do
         last_response.redirect?.should == false
       end
     end
+    
     context "with an encrypted user id in the cookie encrypted with different key/iv to the env key" do
       before :each do
         old_key = ENV["COOKIE_ENCRYPTION_KEY"]
@@ -235,60 +237,57 @@ describe "Listabulous" do
     end
 
     context "with a valid email address" do
+      before :each do
+        @user = get_new_user
+      end
+      
       it "shows confirmation that the email has been sent" do
-        user = get_new_user
-        post "/forgotten_password", { :email => user.email }
+        post "/forgotten_password", { :email => @user.email }
         last_response.body.should include "An email has been sent to the email address that you specified."
       end
 
       it "sends an email to the specified email address" do
-        user = get_new_user
-        Email.should_receive(:send).with(user.email, anything, anything)
-        post "/forgotten_password", { :email => user.email }
+        Email.should_receive(:send).with(@user.email, anything, anything)
+        post "/forgotten_password", { :email => @user.email }
       end
 
       it "sends an email with a subject" do
-        user =  get_new_user
         Email.should_receive(:send).with(anything, "Listabulous - Forgotten Password Email", anything)
-        post "/forgotten_password", { :email => user.email }
+        post "/forgotten_password", { :email => @user.email }
       end
 
       it "generates a random key" do
-        user = get_new_user
         ActiveSupport::SecureRandom.should_receive(:hex).with(16)
-        post "/forgotten_password", { :email => user.email }
+        post "/forgotten_password", { :email => @user.email }
       end        
 
       it "saves the random key to the user" do
-        user = get_new_user
         forgotten_password_key = "some really secure value"
         ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
-        post "/forgotten_password", { :email => user.email }
-        user.reload
-        user.forgotten_password_key.should == forgotten_password_key        
+        post "/forgotten_password", { :email => @user.email }
+        @user.reload
+        @user.forgotten_password_key.should == forgotten_password_key        
       end
 
       it "sends an email containing the forgotten password url" do
-        user = get_new_user
         forgotten_password_key = "some really secure value"
         ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
         Email.should_receive(:send) { |to, subject, body|
-          body.should include "http://www.listabulous.co.uk/forgotten_password_change_password/?email=#{user.email}&key=#{forgotten_password_key}"
+          body.should include "http://www.listabulous.co.uk/forgotten_password_change_password/?email=#{@user.email}&key=#{forgotten_password_key}"
         }
-        post "/forgotten_password", { :email => user.email }
+        post "/forgotten_password", { :email => @user.email }
       end
 
       it "sends an email using the forgotten password email template" do
-        user = get_new_user
         forgotten_password_key = "some really secure value"
         ActiveSupport::SecureRandom.stub!(:hex).with(16).and_return forgotten_password_key
 
         app.new do |erb_app|
-          expected_response_body = erb_app.erb :forgotten_password_email, :layout => false, :locals => { :email => user.email, :key => forgotten_password_key }
+          expected_response_body = erb_app.erb :forgotten_password_email, :layout => false, :locals => { :email => @user.email, :key => forgotten_password_key }
           Email.should_receive(:send).with(anything, anything, expected_response_body)
         end
 
-        post "/forgotten_password", { :email => user.email }
+        post "/forgotten_password", { :email => @user.email }
       end
     end
 
@@ -351,23 +350,20 @@ describe "Listabulous" do
 
         created_user.list_items.count.should == 5
 
-        created_user.list_items[0].text.should == "Try out Listabulous"
-        created_user.list_items[1].text.should == "Click on an item to mark it as complete"
-        created_user.list_items[2].text.should == "Click the coloured square on the left to change an items colour"
-        created_user.list_items[3].text.should == "Items are sorted by their colour, and their text"
-        created_user.list_items[4].text.should == "Click the cross on the right to delete an item"
 
-        created_user.list_items[0].colour.should == "#69D2E7"
-        created_user.list_items[1].colour.should == "#69D2E7"
-        created_user.list_items[2].colour.should == "#69D2E7"
-        created_user.list_items[3].colour.should == "#69D2E7"
-        created_user.list_items[4].colour.should == "#69D2E7"
+        items = [
+          ["Try out Listabulous", "#69D2E7", true],
+          ["Click on an item to mark it as complete", "#69D2E7", false],
+          ["Click the coloured square on the left to change an items colour", "#69D2E7", false],
+          ["Items are sorted by their colour, and their text", "#69D2E7", false],
+          ["Click the cross on the right to delete an item", "#69D2E7", false]
+        ]
 
-        created_user.list_items[0].complete.should == true
-        created_user.list_items[1].complete.should == false
-        created_user.list_items[2].complete.should == false
-        created_user.list_items[3].complete.should == false
-        created_user.list_items[4].complete.should == false
+        items.each_index do |index|
+          created_user.list_items[index].text.should == items[index][0]
+          created_user.list_items[index].colour.should == items[index][1]
+          created_user.list_items[index].complete.should == items[index][2]
+        end
       end
 
       it "encrypts the user id and sets the cookie" do
@@ -552,32 +548,28 @@ describe "Listabulous" do
   end
 
   describe "POST /api/add-list-item" do
-    it "adds the item" do
-      user = get_new_user
+    before :each do
+      @user = get_new_user
       post_login
 
-      text = "This is my new list item!"
-      colour = "black as my soul"
-      post '/api/add-list-item', { :text => text, :colour => colour }
+      @text = "This is my new list item!"
+      @colour = "black as my soul"
+      
+      post '/api/add-list-item', { :text => @text, :colour => @colour }
 
-      user.reload
-      list_item = user.list_items.first
-      user.list_items.count.should == 1
-      list_item.text.should == text
-      list_item.colour.should == colour
+      @user.reload
+      @list_item = @user.list_items.first  
+    end
+    
+    it "adds the item" do
+      @user.list_items.count.should == 1
+      @list_item.text.should == @text
+      @list_item.colour.should == @colour
     end
 
     it "returns the html for the new list item" do
-      user = get_new_user
-      post_login
-
-      text = "This is my new list item!"
-      colour = "black as my soul"
-      post '/api/add-list-item', { :text => text, :colour => colour }
-      user.reload
-
       app.new do |erb_app|
-        expected_response_body = erb_app.erb :list_item, :layout => false, :locals => { :list_item => user.list_items.first }
+        expected_response_body = erb_app.erb :list_item, :layout => false, :locals => { :list_item => @list_item }
         last_response.body.should == expected_response_body
       end
     end
