@@ -10,9 +10,10 @@ describe Email do
 
       Pony.should_receive(:mail).with(
       :to => "email@address.com",
-      :from => "noreply@listabulous.co.uk", 
-      :subject => "subject", 
+      :subject => "subject",
       :body => "body",
+      :from => "noreply@listabulous.co.uk",      
+      :headers => { 'Content-Type' => 'text/html' },      
       :via => :smtp,
       :via_options => {
         :address        => "smtp.sendgrid.net",

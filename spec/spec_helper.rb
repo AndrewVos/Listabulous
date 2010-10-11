@@ -2,6 +2,12 @@ require File.join(File.dirname(__FILE__), '..', 'listabulous.rb')
 
 require 'rubygems'
 require 'sinatra'
+
+set :environment, :test
+set :run, false
+set :raise_errors, true
+set :logging, false
+
 require 'rack/test'
 require 'spec'
 require 'spec/autorun'
@@ -10,11 +16,6 @@ require 'mongo_mapper'
 require 'pony'
 require 'email'
 require 'active_support/secure_random'
-
-set :environment, :test
-set :run, false
-set :raise_errors, true
-set :logging, false
 
 MongoMapper.database = "ListabulousTest"
 

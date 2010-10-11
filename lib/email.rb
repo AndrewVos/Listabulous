@@ -8,6 +8,7 @@ class Email
     :subject => subject, 
     :body => body, 
     :from => "noreply@listabulous.co.uk", 
+    :headers => { "Content-Type" => "text/html" },    
     :via => :smtp,
     :via_options => {
       :address        => "smtp.sendgrid.net",
