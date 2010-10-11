@@ -19,9 +19,14 @@
             List.listItemEntryKeyUp($(this), event);
         });
 
-        this.chooseDefaultColour.click(function() {
-            List.chooseDefaultColourClick($(this));
-        });
+		$(document).click(function(){
+			List.colourPicker.hide();
+		});
+
+		this.chooseDefaultColour.live("click", function() 
+		{
+			List.chooseDefaultColourClick($(this));
+		});
 
         $(".list_item_title").live("click",
         function() {
@@ -46,7 +51,7 @@
 
     getDefaultColour: function()
     {
-        return $("#choose_default_colour").css("background-color");
+        return this.chooseDefaultColour.css("background-color");
     },
 
     getListItemId: function(listItem)
@@ -64,17 +69,7 @@
             top: y
         });
 
-        $(document).one("click",
-        function(event)
-        {
-            var eventTarget = $(event.target);
-            if (eventTarget.is(".choose_list_item_colour, #choose_default_colour") == false)
-            {
-                List.colourPicker.fadeOut();
-            }
-        });
-
-        this.colourPicker.fadeIn();
+        this.colourPicker.show();
     },
 
     sortItems: function()
