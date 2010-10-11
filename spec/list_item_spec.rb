@@ -11,7 +11,7 @@ describe ListItem do
   end
   
   describe ".save" do
-    context "empty text" do
+    context "with empty text" do
       it "does not save" do
         user = create_user("email@address.com", "password1", "password1", "John Doe", "Pink")
         list_item = create_list_item(nil, "red", false)
@@ -23,7 +23,7 @@ describe ListItem do
       end
     end
     
-    context "empty colour" do
+    context "with empty colour" do
       it "does not save" do
         user = create_user("email@address.com", "password1", "password1", "John Doe", "Pink")
         list_item = create_list_item("some text", nil, false)
@@ -35,7 +35,7 @@ describe ListItem do
       end
     end
     
-    context "empty complete" do
+    context "with empty complete" do
       it "does not save" do
         user = create_user("email@address.com", "password1", "password1", "John Doe", "Pink")
         list_item = create_list_item("some text", "red", nil)

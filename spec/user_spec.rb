@@ -10,8 +10,24 @@ describe User do
   end
 
   describe ".save" do
-    context "empty email" do
-      it "should not save" do
+    context "with valid values" do
+      it "hashes the users password" do
+        user = create_user("email@address.com", "some password","some password", "John Doe", "red")
+        user.save
+        sha1 = Digest::SHA1.hexdigest("some password")
+        user.password.should == sha1
+      end
+
+      it "does not save the password confirmation" do
+        user = create_user("email@address.com", "password", "password", "John Doe", "red")
+        user.save
+        saved_user = User.all.first
+        saved_user.password_confirmation.should == nil
+      end
+    end    
+    
+    context "with an empty email" do
+      it "does not save" do
         user = create_user(nil, "thepassword", "thepassword", "John", "Red")
 
         user.save.should == false
@@ -20,8 +36,8 @@ describe User do
       end
     end
 
-    context "invalid email" do
-      it "should not save" do
+    context "with an invalid email" do
+      it "does not save" do
         user = create_user("not a valid email!", "thepassword", "thepassword", "John", "Red")
 
         user.save.should == false
@@ -30,8 +46,8 @@ describe User do
       end
     end
 
-    context "empty password" do
-      it "should not save" do
+    context "with an empty password" do
+      it "does not save" do
         user = create_user("email@address.com", nil, nil, "John", "Red")
 
         user.save.should == false
@@ -40,8 +56,8 @@ describe User do
       end
     end
 
-    context "empty display name" do
-      it "should not save" do
+    context "with an empty display name" do
+      it "does not save" do
         user = create_user("email@address.com", "password", "password", nil, "Red")
 
         user.save.should == false
@@ -51,8 +67,8 @@ describe User do
       end
     end
 
-    context "empty default colour" do
-      it "should not save" do
+    context "with an empty default colour" do
+      it "does not save" do
         user = create_user("email@address.com", "password", "password", "John Doe", nil)
 
         user.save.should == false
@@ -61,8 +77,8 @@ describe User do
       end
     end
 
-    context "email has been used before" do
-      it "should not save" do
+    context "with an email that has been used before" do
+      it "does not save" do
         first_user = create_user("email@address.com", "password1", "password1", "John Doe", "red")
         first_user.save.should == true
 
@@ -74,8 +90,8 @@ describe User do
       end
     end
 
-    context "email has trailing spaces" do
-      it "should not save" do
+    context "with an email that has trailing spaces" do
+      it "does not save" do
         user = create_user("   email@address.com   ", "some password","some password", "John Doe", "red")
 
         user.save.should == false
@@ -84,51 +100,40 @@ describe User do
       end
     end
 
-    context "upper case email address" do
-      it "should downcase email address before saving" do
+    context "with an upper case email address" do
+      it "downcases email address before saving" do
         user = create_user("EMAIL@address.com", "some password","some password", "John Doe", "red")
         user.save.should == true
         user.email.should == "email@address.com"
       end
     end
 
-    it "should hash the users password" do
-      user = create_user("email@address.com", "some password","some password", "John Doe", "red")
-      user.save
-      sha1 = Digest::SHA1.hexdigest("some password")
-      user.password.should == sha1
-    end
 
-    context "user has been saved before" do
-      it "should save again" do
+    context "with a user that has been saved before" do
+      it "saves again" do
         user = create_user("email@address.com", "some password","some password", "John Doe", "red")
         user.save.should == true
         user.save.should == true
       end
     end
 
-    it "should only hash the password once" do
-      user = create_user("email@address.com", "some password", "some password", "John Doe", "red")
-      user.save
-      sha1 = Digest::SHA1.hexdigest("some password")
-      user.save
-      user.password.should == sha1
+    context "with a hashed password" do
+      it "does not double hash the password" do
+        user = create_user("email@address.com", "some password", "some password", "John Doe", "red")
+        user.save
+        sha1 = Digest::SHA1.hexdigest("some password")
+        user.save
+        user.password.should == sha1
+      end
     end
 
-    context "password does not match confirmation password" do
-      it "should not save" do
+    context "with passwords that do not match" do
+      it "does not save" do
         user = create_user("email@address.com", "password", "different password", "John Doe", "red")
         user.save.should == false
         user.errors.count.should == 1
         user.errors.on(:password).should_not == nil
       end
     end
-
-    it "should not save the password confirmation" do
-      user = create_user("email@address.com", "password", "password", "John Doe", "red")
-      user.save
-      saved_user = User.all.first
-      saved_user.password_confirmation.should == nil
-    end    
   end
 end

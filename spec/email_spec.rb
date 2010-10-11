@@ -3,7 +3,7 @@ require 'email'
 
 describe Email do
   describe "::send" do
-    it "should send an email with the sendgrid environment details using Pony" do
+    it "sends an email with the sendgrid environment details using Pony" do
       ENV['SENDGRID_USERNAME'] = "test username"
       ENV['SENDGRID_PASSWORD'] = "test password"
       ENV['SENDGRID_DOMAIN'] = "test domain"

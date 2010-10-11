@@ -6,7 +6,7 @@ describe StringEncryption do
     ENV["COOKIE_ENCRYPTION_IV"] = "+\325\310;^\031d\237\243_\336\356\235\203\3525"
   end
 
-  it "should encrypt and decrypt strings" do
+  it "encrypts and decrypts strings" do
     encryptor = StringEncryption.new
     string = "Some string value"
 
