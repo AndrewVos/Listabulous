@@ -10,6 +10,7 @@ require 'palette'
 require 'string_encryption'
 require 'configure'
 require 'active_support/secure_random'
+require 'email'
 
 before do
   redirect_to_www!
