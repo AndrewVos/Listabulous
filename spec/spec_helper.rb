@@ -9,9 +9,9 @@ set :raise_errors, true
 set :logging, false
 
 require 'rack/test'
-require 'spec'
-require 'spec/autorun'
-require 'spec/interop/test'
+require 'rspec'
+# require 'spec/autorun'
+# require 'spec/interop/test'
 require 'mongo_mapper'
 require 'pony'
 require 'email'

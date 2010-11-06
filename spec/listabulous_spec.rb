@@ -93,7 +93,7 @@ describe "Listabulous" do
         get '/'
         last_response.redirect?.should == true
         last_response.ok?.should == false
-        last_response.location.should == "/login"
+        last_response.location.should match "/login"
       end
     end
     
@@ -102,7 +102,7 @@ describe "Listabulous" do
         user = get_new_user
         post_login
         get '/'
-        assert(last_response.body.include?("Jonny"))
+        last_response.body.include?("Jonny")
       end
       
       it "renders the default palettes" do
@@ -533,7 +533,7 @@ describe "Listabulous" do
       end
 
       get '/statistics'
-      assert(last_response.body.include?('Users: 11'))
+      last_response.body.include?('Users: 11')
     end
   end
 

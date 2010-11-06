@@ -1,4 +1,6 @@
-$: << File.expand_path(File.join(File.dirname(__FILE__), "lib"))
+root_directory = File.dirname(__FILE__)
+$: << root_directory
+$: << File.join(root_directory, "lib")
 
 require 'rubygems'
 require 'sinatra'

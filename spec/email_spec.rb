@@ -1,4 +1,4 @@
-require 'spec'
+require 'rspec'
 require 'email'
 
 describe Email do
