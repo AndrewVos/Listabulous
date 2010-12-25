@@ -22,7 +22,7 @@ class User
   validates_presence_of :default_colour
   validates_associated :list_items
 
-  before_save :downcase_email  
+  before_save :downcase_email
   before_save :hash_password
   before_validation :copy_password_confirmation
 

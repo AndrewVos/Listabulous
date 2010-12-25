@@ -4,13 +4,13 @@ require 'pony'
 class Email
   def self.send(to, subject, body)
     Pony.mail(
-    :to => to, 
-    :subject => subject, 
-    :body => body, 
-    :from => "noreply@listabulous.co.uk", 
-    :headers => { "Content-Type" => "text/html" },    
-    :via => :smtp,
-    :via_options => {
+      :to => to,
+      :subject => subject,
+      :body => body,
+      :from => "noreply@listabulous.co.uk",
+      :headers => { "Content-Type" => "text/html" },
+      :via => :smtp,
+      :via_options => {
       :address        => "smtp.sendgrid.net",
       :port           => "25",
       :authentication => :plain,

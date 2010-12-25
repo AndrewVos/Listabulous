@@ -3,7 +3,7 @@ require 'user'
 
 class ListItem
   include MongoMapper::EmbeddedDocument
-  
+
   key :text, String
   key :colour, String
   key :complete, Boolean

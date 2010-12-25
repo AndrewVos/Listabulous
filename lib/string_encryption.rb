@@ -7,7 +7,7 @@ class StringEncryption
     @key = ENV["COOKIE_ENCRYPTION_KEY"]
     @iv = ENV["COOKIE_ENCRYPTION_IV"]
   end
-  
+
   def encrypt(string)
     cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     cipher.encrypt
@@ -15,7 +15,7 @@ class StringEncryption
     cipher.iv = @iv
     encrypted = cipher.update(string) + cipher.final
   end
-  
+
   def decrypt(string)
     cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
     cipher.decrypt
